@@ -26,6 +26,13 @@
       <organizationUrl>https://irori.se</organizationUrl>
       <id>blofroth</id>
     </developer>
+    <developer>
+      <name>Nils Ståhl</name>
+      <email>nils.stahl@irori.se</email>
+      <organization>Irori AB</organization>
+      <organizationUrl>https://irori.se</organizationUrl>
+      <id>nilsirori</id>
+    </developer>
   </developers>
 
   <scm>

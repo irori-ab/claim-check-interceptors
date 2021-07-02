@@ -13,6 +13,9 @@ public abstract class AbstractClaimCheckProducerInterceptor
   public static final String MAX_IN_BAND_MESSAGE_UNCOMPRESSED_SIZE_CONFIG
       = "max.in.band.message.uncompressed.size";
 
+  public static final String HEADER_NAME
+      = "message-is-claim-check";
+
   // TODO: does this account for headers as well?
   private int maxInBandMessageUncompressedSize = 1048588;
 
@@ -54,7 +57,7 @@ public abstract class AbstractClaimCheckProducerInterceptor
           producerRecord.key(),
           claimCheck.serialize(),
           producerRecord.headers()
-        );
+      );
     } else {
       return producerRecord;
     }
