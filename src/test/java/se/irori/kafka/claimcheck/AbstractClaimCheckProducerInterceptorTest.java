@@ -18,7 +18,7 @@ public class AbstractClaimCheckProducerInterceptorTest {
     unit = new DummyClaimCheckProducerInterceptor(); // reset counter
     HashMap<String,Object> config = new HashMap<>();
     config.put(
-        AbstractClaimCheckProducerInterceptor.MAX_IN_BAND_MESSAGE_UNCOMPRESSED_SIZE_CONFIG,
+        AbstractClaimCheckProducerInterceptor.CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG,
         10);
     unit.configure(config);
   }

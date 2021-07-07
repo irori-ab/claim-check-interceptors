@@ -45,15 +45,23 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+
+    <lib.testcontainers.version>1.15.3</lib.testcontainers.version>
   </properties>
 
   <dependencies>
+
     <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka-clients</artifactId>
       <version>2.8.0</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.azure</groupId>
+      <artifactId>azure-storage-blob</artifactId>
+      <version>12.12.0</version>
+    </dependency>
 
     <dependency>
       <groupId>junit</groupId>
@@ -61,6 +69,35 @@
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <version>${lib.testcontainers.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.strimzi</groupId>
+      <artifactId>strimzi-test-container</artifactId>
+      <version>0.24.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>kafka</artifactId>
+      <version>1.15.3</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.6.1</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
@@ -91,6 +128,33 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>3.0.0-M5</version>
+        <executions>
+          <execution>
+            <id>integration-test</id>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>verify</id>
+            <goals>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <systemPropertyVariables>
+            <!--
+            <azure.blob.storage.account.sastoken>${azure.blob.storage.account.sastoken}</azure.blob.storage.account.sastoken>
+            <azure.blob.storage.account.url>${azure.blob.storage.account.url}</azure.blob.storage.account.url>
+            -->
+          </systemPropertyVariables>
+        </configuration>
       </plugin>
     </plugins>
     <pluginManagement>
@@ -141,5 +205,15 @@
     </pluginManagement>
   </build>
 
+  <profiles>
+    <profile>
+      <id>azurite</id>
+      <properties>
+        <!-- https://github.com/Azure/Azurite#default-storage-account -->
+        <azure.blob.storage.account.sastoken>Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==</azure.blob.storage.account.sastoken>
+        <azure.blob.storage.account.url>${azure.blob.storage.account.url}</azure.blob.storage.account.url>
+      </properties>
+    </profile>
+  </profiles>
 
 </project>

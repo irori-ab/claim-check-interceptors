@@ -10,28 +10,28 @@ import org.apache.kafka.common.header.Header;
  */
 public abstract class AbstractClaimCheckProducerInterceptor
     implements ProducerInterceptor<byte[], byte[]> {
-  public static final String MAX_IN_BAND_MESSAGE_UNCOMPRESSED_SIZE_CONFIG
-      = "max.in.band.message.uncompressed.size";
+  public static final String CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG
+      = "claimcheck.checkin.uncompressed-size.over.bytes";
 
-  public static final String HEADER_NAME
+  public static final String HEADER_MESSAGE_IS_CLAIM_CHECK
       = "message-is-claim-check";
 
   // TODO: does this account for headers as well?
-  private int maxInBandMessageUncompressedSize = 1048588;
+  private int checkinUncompressedSizeOverBytes = 1048588;
 
   public abstract ClaimCheck checkIn(ProducerRecord<byte[], byte[]> largeRecord);
 
   @Override
   public void configure(Map<String, ?> configs) {
-    Object maxSizeConfig = configs.get(MAX_IN_BAND_MESSAGE_UNCOMPRESSED_SIZE_CONFIG);
+    Object maxSizeConfig = configs.get(CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG);
     if (maxSizeConfig != null) {
       if (maxSizeConfig instanceof Integer) {
-        maxInBandMessageUncompressedSize = (Integer) maxSizeConfig;
+        checkinUncompressedSizeOverBytes = (Integer) maxSizeConfig;
       } else {
         try {
-          maxInBandMessageUncompressedSize = Integer.parseInt(maxSizeConfig.toString());
+          checkinUncompressedSizeOverBytes = Integer.parseInt(maxSizeConfig.toString());
         } catch (NumberFormatException e) {
-          throw new IllegalArgumentException(MAX_IN_BAND_MESSAGE_UNCOMPRESSED_SIZE_CONFIG
+          throw new IllegalArgumentException(CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG
               + " is not an accepted number", e);
         }
       }
@@ -49,14 +49,14 @@ public abstract class AbstractClaimCheckProducerInterceptor
     long keySize = producerRecord.key() == null ? 0 : producerRecord.key().length;
     long valueSize = producerRecord.value() == null ? 0 : producerRecord.value().length;
 
-    if (keySize + valueSize + headerTotalSize > maxInBandMessageUncompressedSize) {
+    if (keySize + valueSize + headerTotalSize > checkinUncompressedSizeOverBytes) {
       ClaimCheck claimCheck = checkIn(producerRecord);
       return new ProducerRecord<>(producerRecord.topic(),
           producerRecord.partition(),
           producerRecord.timestamp(),
           producerRecord.key(),
           claimCheck.serialize(),
-          producerRecord.headers()
+          producerRecord.headers().add(HEADER_MESSAGE_IS_CLAIM_CHECK, null) // marker header
       );
     } else {
       return producerRecord;

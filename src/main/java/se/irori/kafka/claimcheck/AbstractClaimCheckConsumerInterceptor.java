@@ -2,7 +2,6 @@ package se.irori.kafka.claimcheck;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerInterceptor;
@@ -25,6 +24,8 @@ public abstract class AbstractClaimCheckConsumerInterceptor
 
   }
 
+  // we (probably) need to propagate the deprecated checksum field
+  @SuppressWarnings("deprecation")
   @Override
   public ConsumerRecords<byte[], byte[]> onConsume(
       ConsumerRecords<byte[], byte[]> consumerRecords) {
@@ -38,6 +39,7 @@ public abstract class AbstractClaimCheckConsumerInterceptor
         if (isClaimCheck(record)) {
           ClaimCheck claimCheck = new ClaimCheck(record.value());
           byte[] value = this.checkOut(claimCheck);
+
           ConsumerRecord<byte[], byte[]> claimCheckRecord =
               new ConsumerRecord<>(record.topic(), record.partition(), record.offset(),
                   record.timestamp(), record.timestampType(), record.checksum(),
@@ -60,7 +62,8 @@ public abstract class AbstractClaimCheckConsumerInterceptor
   public boolean isClaimCheck(ConsumerRecord<byte[], byte[]> record) {
     boolean isClaimCheck = false;
     for (Header header : record.headers()) {
-      if (AbstractClaimCheckProducerInterceptor.HEADER_NAME.equals(header.key())) {
+      if (AbstractClaimCheckProducerInterceptor.HEADER_MESSAGE_IS_CLAIM_CHECK
+          .equals(header.key())) {
         isClaimCheck = true;
       }
     }
