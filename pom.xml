@@ -214,6 +214,17 @@
         <azure.blob.storage.account.url>${azure.blob.storage.account.url}</azure.blob.storage.account.url>
       </properties>
     </profile>
+    <profile>
+      <id>azure</id>
+      <properties>
+        <azure.blob.storage.account.sastoken.path.write>${project.basedir}/my-topic-sas-write-append.sastoken</azure.blob.storage.account.sastoken.path.write>
+        <azure.blob.storage.account.sastoken.path.read>${project.basedir}/my-topic-sas-read.sastoken</azure.blob.storage.account.sastoken.path.read>
+        <!-- <azure.blob.storage.account.url>
+          supply on commandline
+          -Dazure.blob.storage.account.endpoint=https://ACCOUNTNAME.blob.core.windows.net
+        -->
+      </properties>
+    </profile>
   </profiles>
 
 </project>

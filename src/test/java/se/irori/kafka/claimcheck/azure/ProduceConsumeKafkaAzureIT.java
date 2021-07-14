@@ -27,14 +27,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
+import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys;
 
 public class ProduceConsumeKafkaAzureIT {
 
   KafkaProducer<byte[], byte[]> producer;
   KafkaConsumer<byte[], byte[]> consumer;
 
-  HashMap<String,Object> producerConfig;
-  HashMap<String,Object> consumerConfig;
+  HashMap<String, Object> producerConfig;
+  HashMap<String, Object> consumerConfig;
 
   private static final String TOPIC = "my-topic";
   private static final Logger log = LoggerFactory.getLogger(ProduceConsumeKafkaAzureIT.class);
@@ -59,8 +60,6 @@ public class ProduceConsumeKafkaAzureIT {
     // https://github.com/Azure/Azurite#default-storage-account
     String token =
         "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
-    producerConfig.put(AzureBlobClaimCheckProducerInterceptor.AZURE_STORAGE_ACCOUNT_SASTOKEN_CONFIG,
-        token);
     String host = "" + azuriteContainer.getContainerIpAddress();
     String account = "devstoreaccount1";
     // http://<local-machine-address>:<port>/<account-name>/<resource-path>
@@ -70,15 +69,16 @@ public class ProduceConsumeKafkaAzureIT {
         account);
     String connectionString = "" +
         "DefaultEndpointsProtocol=http;" +
-        "AccountName=devstoreaccount1;" +
+        "AccountName=" + account + ";" +
         "BlobEndpoint=" + endpoint + ";" +
         "AccountKey=" + token + ";";
 
     producerConfig.put(
-        AzureBlobClaimCheckProducerInterceptor.CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG,
+        Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG,
         10);
-    producerConfig.put(AzureBlobClaimCheckProducerInterceptor.AZURE_STORAGE_ACCOUNT_URL_CONFIG,
-        connectionString);
+    producerConfig
+        .put(Keys.AZURE_STORAGE_ACCOUNT_CONNECTION_STRING_CONFIG,
+            connectionString);
     producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
         kafkaContainer.getBootstrapServers());
 
@@ -107,7 +107,7 @@ public class ProduceConsumeKafkaAzureIT {
     String key = "myKey";
     // String value = "01234567890";
     StringBuilder valueBuilder = new StringBuilder();
-    while (valueBuilder.length() < 1024*1024) {
+    while (valueBuilder.length() < 1024 * 1024) {
       valueBuilder.append(UUID.randomUUID());
     }
     String value = valueBuilder.toString();

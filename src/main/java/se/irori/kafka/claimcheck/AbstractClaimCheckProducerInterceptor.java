@@ -4,38 +4,28 @@ import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerInterceptor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.Header;
+import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig;
+import se.irori.kafka.claimcheck.azure.BaseClaimCheckConfig;
 
 /**
  * Abstract implementation of the ClaimCheck pattern producer side.
  */
 public abstract class AbstractClaimCheckProducerInterceptor
     implements ProducerInterceptor<byte[], byte[]> {
-  public static final String CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG
-      = "claimcheck.checkin.uncompressed-size.over.bytes";
 
   public static final String HEADER_MESSAGE_IS_CLAIM_CHECK
       = "message-is-claim-check";
 
   // TODO: does this account for headers as well?
-  private int checkinUncompressedSizeOverBytes = 1048588;
+  private long checkinUncompressedSizeOverBytes = 1048588;
 
   public abstract ClaimCheck checkIn(ProducerRecord<byte[], byte[]> largeRecord);
 
   @Override
   public void configure(Map<String, ?> configs) {
-    Object maxSizeConfig = configs.get(CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG);
-    if (maxSizeConfig != null) {
-      if (maxSizeConfig instanceof Integer) {
-        checkinUncompressedSizeOverBytes = (Integer) maxSizeConfig;
-      } else {
-        try {
-          checkinUncompressedSizeOverBytes = Integer.parseInt(maxSizeConfig.toString());
-        } catch (NumberFormatException e) {
-          throw new IllegalArgumentException(CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG
-              + " is not an accepted number", e);
-        }
-      }
-    }
+    BaseClaimCheckConfig baseClaimCheckConfig = BaseClaimCheckConfig.validatedConfig(configs);
+    checkinUncompressedSizeOverBytes = baseClaimCheckConfig.getLong(
+      AzureClaimCheckConfig.Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG);
   }
 
   @Override

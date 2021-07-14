@@ -8,6 +8,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.junit.Before;
 import org.junit.Test;
+import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig;
 
 public class AbstractClaimCheckProducerInterceptorTest {
 
@@ -18,7 +19,7 @@ public class AbstractClaimCheckProducerInterceptorTest {
     unit = new DummyClaimCheckProducerInterceptor(); // reset counter
     HashMap<String,Object> config = new HashMap<>();
     config.put(
-        AbstractClaimCheckProducerInterceptor.CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG,
+        AzureClaimCheckConfig.Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG,
         10);
     unit.configure(config);
   }
