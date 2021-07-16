@@ -13,7 +13,7 @@ import se.irori.kafka.claimcheck.azure.BaseClaimCheckConfig;
 import java.util.Map;
 
 /**
- * Abstract implementation of the ClaimCheck pattern producer side.
+ * Implementation of the ClaimCheck pattern producer side.
  */
 public class SerializingClaimCheckProducerInterceptor<K, V>
     implements ProducerInterceptor<K, V> {
@@ -29,7 +29,6 @@ public class SerializingClaimCheckProducerInterceptor<K, V>
   private Serializer<V> valueSerializer;
 
   private AbstractClaimCheckProducerInterceptor claimCheckProducerInterceptor;
-
 
   @Override
   @SuppressWarnings("unchecked")
@@ -77,8 +76,7 @@ public class SerializingClaimCheckProducerInterceptor<K, V>
     }
 
     if (keySize + valueSize + headerTotalSize > checkinUncompressedSizeOverBytes) {
-      ClaimCheck claimCheck = claimCheckProducerInterceptor
-              .checkIn(new ProducerRecord<byte[], byte[]>(producerRecord.topic(),
+      ClaimCheck claimCheck = claimCheck(new ProducerRecord<>(producerRecord.topic(),
                       producerRecord.partition(),
                       producerRecord.timestamp(),
                       null,
@@ -94,6 +92,10 @@ public class SerializingClaimCheckProducerInterceptor<K, V>
     } else {
       return producerRecord;
     }
+  }
+
+  public ClaimCheck claimCheck(ProducerRecord<byte[], byte[]> largeRecord) {
+    return claimCheckProducerInterceptor.checkIn(largeRecord);
   }
 
   @Override
