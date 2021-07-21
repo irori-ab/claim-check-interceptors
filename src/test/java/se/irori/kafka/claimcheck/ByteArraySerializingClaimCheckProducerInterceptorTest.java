@@ -19,8 +19,6 @@ import static org.junit.Assert.assertEquals;
 
 public class ByteArraySerializingClaimCheckProducerInterceptorTest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ByteArraySerializingClaimCheckProducerInterceptorTest.class);
-
   DummySerializingClaimCheckProducerInterceptor unit;
 
   @Before

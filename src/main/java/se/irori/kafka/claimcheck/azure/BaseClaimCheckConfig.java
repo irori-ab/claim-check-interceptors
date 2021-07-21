@@ -4,6 +4,7 @@ import static se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys.CLAIMCH
 
 import java.util.Map;
 
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.ConfigDef;
@@ -28,6 +29,14 @@ public class BaseClaimCheckConfig extends AbstractConfig {
             ConfigDef.Importance.MEDIUM, "TODO docs");
 
     base.define(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, ConfigDef.Type.CLASS,
+            null,
+            ConfigDef.Importance.MEDIUM, "TODO docs");
+
+    base.define(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ConfigDef.Type.CLASS,
+            null,
+            ConfigDef.Importance.MEDIUM, "TODO docs");
+
+    base.define(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ConfigDef.Type.CLASS,
             null,
             ConfigDef.Importance.MEDIUM, "TODO docs");
 
