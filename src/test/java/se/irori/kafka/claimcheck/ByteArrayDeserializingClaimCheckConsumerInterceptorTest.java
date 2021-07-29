@@ -75,6 +75,23 @@ public class ByteArrayDeserializingClaimCheckConsumerInterceptorTest {
     assertEquals(0, unit.getCount());
   }
 
+  @Test
+  public void onConsumeNull() {
+    // GIVEN
+    ConsumerRecord<byte[], byte[]> consumerRecord =
+            new ConsumerRecord<>("a", 1, 0, new byte[] {}, null);
+    ConsumerRecords<byte[], byte[]> records = new ConsumerRecords<>(Collections
+            .singletonMap(new TopicPartition("a", 1), Collections.singletonList(consumerRecord)));
+
+    // WHEN
+    ConsumerRecords<byte[], byte[]> result = unit.onConsume(records);
+
+    // THEN
+    assertEquals(1, result.count());
+    assertEquals(null, result.iterator().next().value());
+    assertEquals(0, unit.getCount());
+  }
+
   public static class DummyClaimCheckConsumerInterceptor
       extends DeserializingClaimCheckConsumerInterceptor {
 

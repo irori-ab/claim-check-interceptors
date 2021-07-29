@@ -71,6 +71,22 @@ public class ByteArraySerializingClaimCheckProducerInterceptorTest {
     assertEquals(0, unit.getCount());
   }
 
+  @Test
+  public void onSendNullByte() {
+    // GIVEN the interceptor is configured with max limit 10 bytes
+
+    // WHEN sending a record with null key, and body < 10 bytes
+    ProducerRecord<byte[], byte[]> producerRecord =
+            new ProducerRecord<>("dummyTopic",
+                    null);
+
+    ProducerRecord<byte[], byte[]> result = unit.onSend(producerRecord);
+
+    // THEN result should be a claim check reference to the 0 counter value from the dummy impl
+    assertEquals(null, result.value());
+    assertEquals(0, unit.getCount());
+  }
+
   public static class DummySerializingClaimCheckProducerInterceptor<K, V>
       extends SerializingClaimCheckProducerInterceptor<K, V> {
 

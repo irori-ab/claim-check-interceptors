@@ -76,6 +76,25 @@ public class StringDeserializingClaimCheckConsumerInterceptorTest {
     assertEquals(0, unit.getCount());
   }
 
+  @Test
+  public void onConsumeNull() {
+    // GIVEN
+    String nullStr = new String();
+    ConsumerRecord<String, String> consumerRecord =
+            new ConsumerRecord<>("a", 1, 0, "key", nullStr);
+    ConsumerRecords<String, String> records = new ConsumerRecords<>(Collections
+            .singletonMap(new TopicPartition("a", 1), Collections.singletonList(consumerRecord)));
+
+    // WHEN
+    ConsumerRecords<String, String> result = unit.onConsume(records);
+
+    // THEN
+    assertEquals(1, result.count());
+    assertEquals(nullStr, result.iterator().next().value());
+    assertEquals(0, unit.getCount());
+  }
+
+
   public static class DummyClaimCheckConsumerInterceptor
       extends DeserializingClaimCheckConsumerInterceptor {
 
