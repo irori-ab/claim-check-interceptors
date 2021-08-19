@@ -54,7 +54,7 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
       List<ConsumerRecord<K, V>> partitionConsumerRecords = new ArrayList<>();
       for (ConsumerRecord<K, V> record : consumerRecords.records(partition)) {
         if (isClaimCheck(record)) {
-          ClaimCheck claimCheck = new ClaimCheck(record.value().toString().getBytes(StandardCharsets.UTF_8));
+          ClaimCheck claimCheck = new ClaimCheck(getClaimCheckRefFromHeader(record));
           V value = valueDeserializer.deserialize(record.topic(), record.headers(), checkOut(claimCheck));
 
           ConsumerRecord<K, V> claimCheckRecord =
@@ -89,6 +89,21 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
       }
     }
     return isClaimCheck;
+  }
+
+  /**
+   * Get claim check reference from header
+   * @param record
+   */
+  public byte[] getClaimCheckRefFromHeader(ConsumerRecord<K, V> record) {
+    byte[] ret = null;
+    for (Header header : record.headers()) {
+      if (AbstractClaimCheckProducerInterceptor.HEADER_MESSAGE_IS_CLAIM_CHECK
+          .equals(header.key())) {
+        ret = header.value();
+      }
+    }
+    return ret;
   }
 
   @Override

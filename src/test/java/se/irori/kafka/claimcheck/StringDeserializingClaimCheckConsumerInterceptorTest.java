@@ -41,7 +41,8 @@ public class StringDeserializingClaimCheckConsumerInterceptorTest {
     // GIVEN
     ConsumerRecord<String, String> consumerRecord =
         new ConsumerRecord<>("a", 1, 0, "key", "x");
-    consumerRecord.headers().add(AbstractClaimCheckProducerInterceptor.HEADER_MESSAGE_IS_CLAIM_CHECK, null);
+    consumerRecord.headers().add(AbstractClaimCheckProducerInterceptor.HEADER_MESSAGE_IS_CLAIM_CHECK, "abc123".getBytes(
+        StandardCharsets.UTF_8));
     ConsumerRecords<String, String> records = new ConsumerRecords<>(
             Collections.singletonMap(new TopicPartition("a", 1),
                     Collections.singletonList(consumerRecord)));
