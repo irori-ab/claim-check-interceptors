@@ -28,7 +28,9 @@ public class AbstractClaimCheckConsumerInterceptorTest {
     ConsumerRecord<byte[], byte[]> consumerRecord =
         new ConsumerRecord<>("a", 1, 0, new byte[] {}, "x".getBytes(StandardCharsets.UTF_8));
     consumerRecord.headers().add(AbstractClaimCheckProducerInterceptor.HEADER_MESSAGE_IS_CLAIM_CHECK, null);
-    ConsumerRecords<byte[], byte[]> records = new ConsumerRecords<>(Collections.singletonMap(new TopicPartition("a", 1), Collections.singletonList(consumerRecord)));
+    ConsumerRecords<byte[], byte[]> records = new ConsumerRecords<>(
+            Collections.singletonMap(new TopicPartition("a", 1),
+                    Collections.singletonList(consumerRecord)));
 
     // WHEN
     ConsumerRecords<byte[], byte[]> result = unit.onConsume(records);
