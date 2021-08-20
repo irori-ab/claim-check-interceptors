@@ -21,11 +21,11 @@ for running these tests locally.
 ### Setup storage account and credentials manually
 
 ```
-az group create -l westeurope -n claimcheck-test
+az group create -l westeurope -n claimcheckrg
 
 az storage account create \
-    --resource-group claimcheck-test \
-    --name claimchecktestsa \
+    --resource-group claimcheckrg \
+    --name claimcheckcitest \
     --location westeurope
     
 # get the SA key, to create SAS tokens
