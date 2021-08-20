@@ -29,7 +29,9 @@ public class AzureBlobClaimCheckProducerInterceptor extends AbstractClaimCheckPr
         topicContainerClients.computeIfAbsent(largeRecord.topic(),
             t -> blobServiceClient.getBlobContainerClient(t));
 
-    blobContainerClient.create();
+    if(!blobContainerClient.exists()) {
+      blobContainerClient.create();
+    }
 
     String blobName = UUID.randomUUID().toString();
     BlobClient blobClient = blobContainerClient.getBlobClient(blobName);
