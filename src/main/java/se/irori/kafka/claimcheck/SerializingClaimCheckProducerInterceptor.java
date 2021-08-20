@@ -35,13 +35,11 @@ public class SerializingClaimCheckProducerInterceptor<K, V>
     checkinUncompressedSizeOverBytes = baseClaimCheckConfig.getLong(
       AzureClaimCheckConfig.Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG);
 
-    Serializer valueConfiguredInstance = baseClaimCheckConfig
+    this.valueSerializer = baseClaimCheckConfig
             .getConfiguredInstance(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, Serializer.class);
-    this.valueSerializer = valueConfiguredInstance;
 
-    Serializer keyConfiguredInstance = baseClaimCheckConfig
+    this.keySerializer = baseClaimCheckConfig
             .getConfiguredInstance(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, Serializer.class);
-    this.keySerializer = keyConfiguredInstance;
 
     // TODO: make it generic abstract ProducerInterceptor
     claimCheckProducerInterceptor = new AzureBlobClaimCheckProducerInterceptor();

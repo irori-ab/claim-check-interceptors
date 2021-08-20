@@ -21,22 +21,16 @@ import se.irori.kafka.claimcheck.azure.BaseClaimCheckConfig;
 public class DeserializingClaimCheckConsumerInterceptor<K, V>
     implements ConsumerInterceptor<K, V> {
 
-  private Deserializer<K> keyDeserializer;
-
   private Deserializer<V> valueDeserializer;
 
   private AbstractClaimCheckConsumerInterceptor claimCheckConsumerInterceptor;
 
+  @SuppressWarnings("unchecked")
   @Override
   public void configure(Map<String, ?> configs) {
     BaseClaimCheckConfig baseClaimCheckConfig = BaseClaimCheckConfig.validatedConfig(configs);
-    Deserializer valueConfiguredInstance = baseClaimCheckConfig.getConfiguredInstance(
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, Deserializer.class);
-    this.valueDeserializer = valueConfiguredInstance;
-
-    Deserializer keyConfiguredInstance = baseClaimCheckConfig.getConfiguredInstance(
-        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, Deserializer.class);
-    this.keyDeserializer = keyConfiguredInstance;
+    this.valueDeserializer = baseClaimCheckConfig.getConfiguredInstance(
+        ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, Deserializer.class);
 
     // TODO: make it generic abstract ProducerInterceptor
     claimCheckConsumerInterceptor = new AzureBlobClaimCheckConsumerInterceptor();
@@ -61,7 +55,7 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
               .deserialize(record.topic(), record.headers(), checkOut(claimCheck));
 
           ConsumerRecord<K, V> claimCheckRecord =
-              new ConsumerRecord<K, V>(record.topic(), record.partition(), record.offset(),
+              new ConsumerRecord<>(record.topic(), record.partition(), record.offset(),
                   record.timestamp(), record.timestampType(), record.checksum(),
                   record.serializedKeySize(),
                   record.serializedKeySize(),

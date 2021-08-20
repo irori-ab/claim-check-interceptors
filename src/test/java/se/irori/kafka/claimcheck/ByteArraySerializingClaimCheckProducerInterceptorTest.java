@@ -1,21 +1,18 @@
 package se.irori.kafka.claimcheck;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
-import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig;
-
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-
-import static org.junit.Assert.assertEquals;
 
 public class ByteArraySerializingClaimCheckProducerInterceptorTest {
 
@@ -84,12 +81,12 @@ public class ByteArraySerializingClaimCheckProducerInterceptorTest {
     ProducerRecord<byte[], byte[]> result = unit.onSend(producerRecord);
 
     // THEN result should be a claim check reference to the 0 counter value from the dummy impl
-    assertEquals(null, result.value());
+    assertNull(result.value());
     assertEquals(0, unit.getCount());
   }
 
-  public static class DummySerializingClaimCheckProducerInterceptor<K, V>
-      extends SerializingClaimCheckProducerInterceptor<K, V> {
+  public static class DummySerializingClaimCheckProducerInterceptor
+      extends SerializingClaimCheckProducerInterceptor<byte[], byte[]> {
 
     private int counter = 0;
 

@@ -3,7 +3,6 @@ package se.irori.kafka.claimcheck.azure;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,17 +42,11 @@ public class ProduceConsumeKafkaAzureIT extends AbstractClaimCheckIT {
   private static final Logger log = LoggerFactory.getLogger(ProduceConsumeKafkaAzureIT.class);
 
   @Rule
-  public AzuriteContainer azuriteContainer = new AzuriteContainer()
+  public final AzuriteContainer azuriteContainer = new AzuriteContainer()
       .withExposedPorts(10000);
 
-  /*
-  @Rule
-  public StrimziKafkaContainer kafkaContainer =
-      new StrimziKafkaContainer("0.24.0-kafka-2.8.0");
-  */
-
   @ClassRule
-  public static KafkaContainer kafkaContainer =
+  public static final KafkaContainer kafkaContainer =
       new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.0")); // 2.8.0
 
   @Before

@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class ByteArrayDeserializingClaimCheckConsumerInterceptorTest {
 
@@ -89,12 +90,12 @@ public class ByteArrayDeserializingClaimCheckConsumerInterceptorTest {
 
     // THEN
     assertEquals(1, result.count());
-    assertEquals(null, result.iterator().next().value());
+    assertNull(result.iterator().next().value());
     assertEquals(0, unit.getCount());
   }
 
   public static class DummyClaimCheckConsumerInterceptor
-      extends DeserializingClaimCheckConsumerInterceptor {
+      extends DeserializingClaimCheckConsumerInterceptor<byte[],byte[]> {
 
     private int counter = 0;
 

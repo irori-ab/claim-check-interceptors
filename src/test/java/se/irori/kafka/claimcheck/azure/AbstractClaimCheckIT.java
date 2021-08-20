@@ -21,10 +21,10 @@ public class AbstractClaimCheckIT {
    * Inject config based on system properties (if present), or configure for the Azurite
    * emulator.
    *
+   * @param baseConfig config map to inject properties into
    * @param azuriteContainer initialized azurite container
    * @param withPrefix potential prefix prepend when looking up config to look for (eg 'producer_')
    *                   or null for no prefix
-   * @return a base config map with properties injected from sytem properties
    */
   public void injectConfigFromSystemProperties(Map<String, Object> baseConfig,
                                                AzuriteContainer azuriteContainer,

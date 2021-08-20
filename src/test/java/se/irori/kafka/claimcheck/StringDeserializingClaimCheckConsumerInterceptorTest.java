@@ -1,20 +1,18 @@
 package se.irori.kafka.claimcheck;
 
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.serialization.ByteArrayDeserializer;
-import org.apache.kafka.common.serialization.StringDeserializer;
-import org.junit.Before;
-import org.junit.Test;
-import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig;
+import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
-
-import static org.junit.Assert.assertEquals;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.common.TopicPartition;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.junit.Before;
+import org.junit.Test;
+import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig;
 
 public class StringDeserializingClaimCheckConsumerInterceptorTest {
 
@@ -80,7 +78,7 @@ public class StringDeserializingClaimCheckConsumerInterceptorTest {
   @Test
   public void onConsumeNull() {
     // GIVEN
-    String nullStr = new String();
+    String nullStr = null;
     ConsumerRecord<String, String> consumerRecord =
             new ConsumerRecord<>("a", 1, 0, "key", nullStr);
     ConsumerRecords<String, String> records = new ConsumerRecords<>(Collections
@@ -97,7 +95,7 @@ public class StringDeserializingClaimCheckConsumerInterceptorTest {
 
 
   public static class DummyClaimCheckConsumerInterceptor
-      extends DeserializingClaimCheckConsumerInterceptor {
+      extends DeserializingClaimCheckConsumerInterceptor<String,String> {
 
     private int counter = 0;
 

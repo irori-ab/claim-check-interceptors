@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
  * https://www.enterpriseintegrationpatterns.com/patterns/messaging/StoreInLibrary.html
  */
 public class ClaimCheck {
-  private String reference;
+  private final String reference;
 
   public ClaimCheck(String reference) {
     this.reference = reference;

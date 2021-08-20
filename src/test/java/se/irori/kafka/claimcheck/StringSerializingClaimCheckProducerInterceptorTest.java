@@ -77,7 +77,7 @@ public class StringSerializingClaimCheckProducerInterceptorTest {
   public void onSendNullString() {
     // GIVEN the interceptor is configured with max limit 10 bytes
 
-    String nullStr = new String();
+    String nullStr = null;
     // WHEN sending a record with null key, and body < 10 bytes
     ProducerRecord<String, String> producerRecord =
             new ProducerRecord<>("dummyTopic",
@@ -90,8 +90,8 @@ public class StringSerializingClaimCheckProducerInterceptorTest {
     assertEquals(0, unit.getCount());
   }
 
-  public static class DummySerializingClaimCheckProducerInterceptor<K, V>
-      extends SerializingClaimCheckProducerInterceptor<K, V> {
+  public static class DummySerializingClaimCheckProducerInterceptor
+      extends SerializingClaimCheckProducerInterceptor<String, String> {
 
     private int counter = 0;
 
