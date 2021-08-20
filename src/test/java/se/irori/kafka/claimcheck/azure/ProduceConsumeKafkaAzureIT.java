@@ -17,8 +17,8 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.common.serialization.ByteArrayDeserializer;
-import org.apache.kafka.common.serialization.ByteArraySerializer;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -27,12 +27,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
+import se.irori.kafka.claimcheck.DeserializingClaimCheckConsumerInterceptor;
+import se.irori.kafka.claimcheck.SerializingClaimCheckProducerInterceptor;
 import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys;
 
-public class ProduceConsumeKafkaAzureIT {
+public class ProduceConsumeKafkaAzureIT extends AbstractClaimCheckIT {
 
-  KafkaProducer<byte[], byte[]> producer;
-  KafkaConsumer<byte[], byte[]> consumer;
+  KafkaProducer<String, String> producer;
+  KafkaConsumer<String, String> consumer;
 
   HashMap<String, Object> producerConfig;
   HashMap<String, Object> consumerConfig;
@@ -57,44 +59,30 @@ public class ProduceConsumeKafkaAzureIT {
   @Before
   public void setUp() {
     producerConfig = new HashMap<>();
+    injectConfigFromSystemProperties(producerConfig, azuriteContainer, "producer.");
     // https://github.com/Azure/Azurite#default-storage-account
-    String token =
-        "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
-    String host = "" + azuriteContainer.getContainerIpAddress();
-    String account = "devstoreaccount1";
-    // http://<local-machine-address>:<port>/<account-name>/<resource-path>
-    String endpoint = String.format("http://%s:%d/%s/",
-        host,
-        azuriteContainer.getMappedPort(10000),
-        account);
-    String connectionString = "" +
-        "DefaultEndpointsProtocol=http;" +
-        "AccountName=" + account + ";" +
-        "BlobEndpoint=" + endpoint + ";" +
-        "AccountKey=" + token + ";";
 
     producerConfig.put(
         Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG,
         10);
-    producerConfig
-        .put(Keys.AZURE_STORAGE_ACCOUNT_CONNECTION_STRING_CONFIG,
-            connectionString);
     producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
         kafkaContainer.getBootstrapServers());
 
-    consumerConfig = new HashMap<>(producerConfig);
-
-    producerConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
-    producerConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
+    producerConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    producerConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     producerConfig.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG,
-        AzureBlobClaimCheckProducerInterceptor.class.getName());
+        SerializingClaimCheckProducerInterceptor.class.getName());
 
-    consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
-    consumerConfig.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
+    consumerConfig = new HashMap<>();
+    injectConfigFromSystemProperties(consumerConfig, azuriteContainer, "consumer.");
+    consumerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+        kafkaContainer.getBootstrapServers());
+    consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    consumerConfig.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     consumerConfig.put(ConsumerConfig.GROUP_ID_CONFIG, "my-group");
     consumerConfig.put(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG,
-        AzureBlobClaimCheckConsumerInterceptor.class.getName());
+        DeserializingClaimCheckConsumerInterceptor.class.getName());
 
     producer = new KafkaProducer<>(producerConfig);
     consumer = new KafkaConsumer<>(consumerConfig);
@@ -112,14 +100,12 @@ public class ProduceConsumeKafkaAzureIT {
     }
     String value = valueBuilder.toString();
 
-    RecordMetadata recordMetadata = producer.send(new ProducerRecord<>(TOPIC,
-        key.getBytes(StandardCharsets.UTF_8),
-        value.getBytes(StandardCharsets.UTF_8))).get();
+    RecordMetadata recordMetadata = producer.send(new ProducerRecord<>(TOPIC, key, value)).get();
 
     //Slf4jLogConsumer logConsumer = new Slf4jLogConsumer(log);
     //kafkaContainer.followOutput(logConsumer);
 
-    ArrayList<ConsumerRecord<byte[], byte[]>> consumedRecords = new ArrayList<>();
+    ArrayList<ConsumerRecord<String, String>> consumedRecords = new ArrayList<>();
     consumer.poll(Duration.ofSeconds(10)).forEach(consumedRecords::add);
 
     int timeoutS = 60;
@@ -135,9 +121,9 @@ public class ProduceConsumeKafkaAzureIT {
     consumer.poll(Duration.ofSeconds(10)).forEach(consumedRecords::add);
 
     assertEquals(1, consumedRecords.size());
-    ConsumerRecord<byte[], byte[]> record = consumedRecords.get(0);
-    String keyResult = new String(record.key(), StandardCharsets.UTF_8);
-    String valueResult = new String(record.value(), StandardCharsets.UTF_8);
+    ConsumerRecord<String, String> record = consumedRecords.get(0);
+    String keyResult = record.key();
+    String valueResult = record.value();
     assertEquals(key, keyResult);
     assertEquals(value, valueResult);
   }

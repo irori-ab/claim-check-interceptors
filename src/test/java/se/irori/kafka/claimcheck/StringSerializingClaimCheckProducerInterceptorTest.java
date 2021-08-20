@@ -52,7 +52,8 @@ public class StringSerializingClaimCheckProducerInterceptorTest {
 
     // THEN result should be a claim check reference to the 0 counter value from the dummy impl
     assertEquals("0", new ClaimCheck(headerResult.value()).getReference());
-    assertEquals("message-claim-check", headerResult.key());
+    assertEquals(AbstractClaimCheckProducerInterceptor.HEADER_MESSAGE_IS_CLAIM_CHECK,
+        headerResult.key());
     assertEquals(1, unit.getCount());
   }
 

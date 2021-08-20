@@ -47,6 +47,10 @@
     <maven.compiler.target>1.8</maven.compiler.target>
 
     <lib.testcontainers.version>1.15.3</lib.testcontainers.version>
+    <producer.azure.blob.storage.account.endpoint/>
+    <producer.azure.blob.storage.account.sastoken.from/>
+    <consumer.azure.blob.storage.account.endpoint/>
+    <consumer.azure.blob.storage.account.sastoken.from/>
   </properties>
 
   <dependencies>
@@ -149,10 +153,10 @@
         </executions>
         <configuration>
           <systemPropertyVariables>
-            <!--
-            <azure.blob.storage.account.sastoken>${azure.blob.storage.account.sastoken}</azure.blob.storage.account.sastoken>
-            <azure.blob.storage.account.url>${azure.blob.storage.account.url}</azure.blob.storage.account.url>
-            -->
+            <producer.azure.blob.storage.account.endpoint>${producer.azure.blob.storage.account.endpoint}</producer.azure.blob.storage.account.endpoint>
+            <producer.azure.blob.storage.account.sastoken.from>${producer.azure.blob.storage.account.sastoken.from}</producer.azure.blob.storage.account.sastoken.from>
+            <consumer.azure.blob.storage.account.endpoint>${consumer.azure.blob.storage.account.endpoint}</consumer.azure.blob.storage.account.endpoint>
+            <consumer.azure.blob.storage.account.sastoken.from>${consumer.azure.blob.storage.account.sastoken.from}</consumer.azure.blob.storage.account.sastoken.from>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -209,16 +213,16 @@
     <profile>
       <id>azurite</id>
       <properties>
-        <!-- https://github.com/Azure/Azurite#default-storage-account -->
-        <azure.blob.storage.account.sastoken>Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==</azure.blob.storage.account.sastoken>
-        <azure.blob.storage.account.url>${azure.blob.storage.account.url}</azure.blob.storage.account.url>
+        <!-- default to empty, will trigger injection of Azurite config in IT cases -->
       </properties>
     </profile>
     <profile>
       <id>azure</id>
       <properties>
-        <azure.blob.storage.account.sastoken.path.write>${project.basedir}/my-topic-sas-write-append.sastoken</azure.blob.storage.account.sastoken.path.write>
-        <azure.blob.storage.account.sastoken.path.read>${project.basedir}/my-topic-sas-read.sastoken</azure.blob.storage.account.sastoken.path.read>
+        <producer.azure.blob.storage.account.endpoint>https://claimcheckcitest.blob.core.windows.net/</producer.azure.blob.storage.account.endpoint>
+        <producer.azure.blob.storage.account.sastoken.from>file:${project.basedir}/my-topic-sas-write.sastoken</producer.azure.blob.storage.account.sastoken.from>
+        <consumer.azure.blob.storage.account.endpoint>https://claimcheckcitest.blob.core.windows.net/</consumer.azure.blob.storage.account.endpoint>
+        <consumer.azure.blob.storage.account.sastoken.from>file:${project.basedir}/my-topic-sas-read.sastoken</consumer.azure.blob.storage.account.sastoken.from>
         <!-- <azure.blob.storage.account.url>
           supply on commandline
           -Dazure.blob.storage.account.endpoint=https://ACCOUNTNAME.blob.core.windows.net

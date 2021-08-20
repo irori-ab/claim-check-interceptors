@@ -1,17 +1,19 @@
 package se.irori.kafka.claimcheck;
 
-import org.apache.kafka.clients.consumer.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerInterceptor;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.serialization.Deserializer;
 import se.irori.kafka.claimcheck.azure.AzureBlobClaimCheckConsumerInterceptor;
 import se.irori.kafka.claimcheck.azure.BaseClaimCheckConfig;
-
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Abstract implementation of the ClaimCheck pattern consumer side.
@@ -28,12 +30,12 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
   @Override
   public void configure(Map<String, ?> configs) {
     BaseClaimCheckConfig baseClaimCheckConfig = BaseClaimCheckConfig.validatedConfig(configs);
-    Deserializer valueConfiguredInstance = baseClaimCheckConfig
-            .getConfiguredInstance(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, Deserializer.class);
+    Deserializer valueConfiguredInstance = baseClaimCheckConfig.getConfiguredInstance(
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, Deserializer.class);
     this.valueDeserializer = valueConfiguredInstance;
 
-    Deserializer keyConfiguredInstance = baseClaimCheckConfig
-            .getConfiguredInstance(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, Deserializer.class);
+    Deserializer keyConfiguredInstance = baseClaimCheckConfig.getConfiguredInstance(
+        ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, Deserializer.class);
     this.keyDeserializer = keyConfiguredInstance;
 
     // TODO: make it generic abstract ProducerInterceptor
@@ -55,12 +57,17 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
       for (ConsumerRecord<K, V> record : consumerRecords.records(partition)) {
         if (isClaimCheck(record)) {
           ClaimCheck claimCheck = new ClaimCheck(getClaimCheckRefFromHeader(record));
-          V value = valueDeserializer.deserialize(record.topic(), record.headers(), checkOut(claimCheck));
+          V value = valueDeserializer
+              .deserialize(record.topic(), record.headers(), checkOut(claimCheck));
 
           ConsumerRecord<K, V> claimCheckRecord =
               new ConsumerRecord<K, V>(record.topic(), record.partition(), record.offset(),
                   record.timestamp(), record.timestampType(), record.checksum(),
-                  record.serializedKeySize(), record.serializedKeySize(), record.key(), value, record.headers(),
+                  record.serializedKeySize(),
+                  record.serializedKeySize(),
+                  record.key(),
+                  value,
+                  record.headers(),
                   record.leaderEpoch());
           partitionConsumerRecords.add(claimCheckRecord);
         } else {
@@ -92,8 +99,9 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
   }
 
   /**
-   * Get claim check reference from header
-   * @param record
+   * Get claim check reference from header.
+   *
+   * @param record the record to process headers for
    */
   public byte[] getClaimCheckRefFromHeader(ConsumerRecord<K, V> record) {
     byte[] ret = null;

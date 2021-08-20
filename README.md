@@ -29,26 +29,43 @@ az storage account create \
     --location westeurope
     
 # get the SA key, to create SAS tokens
-az storage account keys list -g claimcheck-test -n claimchecktestsa --query '[0].value'
+az storage account keys list -g claimcheckrg -n claimcheckcitest --query '[0].value'
 export AZURE_STORAGE_KEY=...
     
 # write sas, +6 months expiry
-az storage blob generate-sas \
-    --account-name claimchecktestsa \
-    --container-name my-topic \
-    --name my-topic-sas-write-append \
-    --permissions rac \
-    --expiry $(date -v +6m +%Y-%m-%d) > my-topic-sas-write-append.sastoken 
+
+# Producer: rcl
+# (r) read
+# (c) create
+# (l) list
+
+# TODO: how to restrict to specific container
+
+az storage account generate-sas \
+ --account-name claimcheckcitest \
+ --permissions rcl \
+ --services b \
+ --resource-types co \
+ --https-only \
+ --expiry $(date -v +6m +%Y-%m-%d) | tr -d '"' > my-topic-sas-write.sastoken 
+
+# consumer: rl
+# (r) read
+# (l) list
 
 # read sas, +6 months expiry
-az storage blob generate-sas \
-    --account-name claimchecktestsa \
-    --container-name my-topic \
-    --name my-topic-sas-read \
-    --permissions r \
-    --expiry $(date -v +6m +%Y-%m-%d) > my-topic-sas-read.sastoken
+# TODO: how to restrict to specific container
+
+az storage account generate-sas \
+ --account-name claimcheckcitest \
+ --permissions rl \
+ --services b \
+ --resource-types co \
+ --https-only \
+ --expiry $(date -v +6m +%Y-%m-%d) | tr -d '"' > my-topic-sas-read.sastoken 
 ```
 
 ## Reference Documentation 
 
 - [Azure SDK documentation](https://azuresdkartifacts.blob.core.windows.net/azure-sdk-for-java/index.html)
+- [SAS token structure](https://docs.microsoft.com/en-us/rest/api/storageservices/create-service-sas)

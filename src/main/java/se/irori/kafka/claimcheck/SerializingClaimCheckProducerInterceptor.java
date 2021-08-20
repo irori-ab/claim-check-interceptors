@@ -1,5 +1,8 @@
 package se.irori.kafka.claimcheck;
 
+import static se.irori.kafka.claimcheck.AbstractClaimCheckProducerInterceptor.HEADER_MESSAGE_IS_CLAIM_CHECK;
+
+import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerInterceptor;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -10,16 +13,11 @@ import se.irori.kafka.claimcheck.azure.AzureBlobClaimCheckProducerInterceptor;
 import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig;
 import se.irori.kafka.claimcheck.azure.BaseClaimCheckConfig;
 
-import java.util.Map;
-
 /**
  * Implementation of the ClaimCheck pattern producer side.
  */
 public class SerializingClaimCheckProducerInterceptor<K, V>
     implements ProducerInterceptor<K, V> {
-
-  public static final String HEADER_MESSAGE_CLAIM_CHECK
-      = "message-claim-check";
 
   // TODO: does this account for headers as well?
   private long checkinUncompressedSizeOverBytes = 1048588;
@@ -62,7 +60,10 @@ public class SerializingClaimCheckProducerInterceptor<K, V>
     if (producerRecord.key() == null) {
       keySize = 0;
     } else {
-      byte[] keyBytes = keySerializer.serialize(producerRecord.topic(), producerRecord.headers(), producerRecord.key());
+      byte[] keyBytes = keySerializer.serialize(
+          producerRecord.topic(),
+          producerRecord.headers(),
+          producerRecord.key());
       keySize = keyBytes.length;
     }
 
@@ -71,7 +72,10 @@ public class SerializingClaimCheckProducerInterceptor<K, V>
     if (producerRecord.value() == null) {
       valueSize = 0;
     } else {
-      valueBytes = valueSerializer.serialize(producerRecord.topic(), producerRecord.headers(), producerRecord.value());
+      valueBytes = valueSerializer.serialize(
+          producerRecord.topic(),
+          producerRecord.headers(),
+          producerRecord.value());
       valueSize = valueBytes.length;
     }
 
@@ -87,7 +91,7 @@ public class SerializingClaimCheckProducerInterceptor<K, V>
           producerRecord.timestamp(),
           producerRecord.key(),
           null, // TODO: Fix how it interacts with log compaction
-          producerRecord.headers().add(HEADER_MESSAGE_CLAIM_CHECK, claimCheck.serialize())
+          producerRecord.headers().add(HEADER_MESSAGE_IS_CLAIM_CHECK, claimCheck.serialize())
       );
     } else {
       return producerRecord;
