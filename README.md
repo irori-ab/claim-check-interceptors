@@ -16,6 +16,22 @@ Azure Blob Storage emulator (Azurite). The tests are run with Maven Failsafe.
 See [Docker pre-requisites](https://www.testcontainers.org/supported_docker_environment/)
 for running these tests locally.
 
+## Run integration tests
+
+
+### Azurite
+With `azurite` Azure API emulator: `mvn verify -Pazurite`.
+
+
+### Azure
+With real Azure storage account, and SAS tokens stored as local files: `mvn verify -Pazure`. (see next section to setup).
+
+If using another storage account than the example, you can override the endpoint the command:
+```
+ mvn verify -Pazure -Dproducer.azure.blob.storage.account.endpoint=https://???.blob.core.windows.net/ \
+   -Dconsumer.azure.blob.storage.account.endpoint=https://???.blob.core.windows.net/
+```
+
 ## Azure Blob Storage
 
 ### Setup storage account and credentials manually
