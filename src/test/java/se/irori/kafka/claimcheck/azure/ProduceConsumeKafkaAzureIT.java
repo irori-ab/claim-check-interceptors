@@ -2,6 +2,7 @@ package se.irori.kafka.claimcheck.azure;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static se.irori.kafka.claimcheck.BaseClaimCheckConfig.Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_CONFIG;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -26,9 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
+import se.irori.kafka.claimcheck.BaseClaimCheckConfig;
 import se.irori.kafka.claimcheck.DeserializingClaimCheckConsumerInterceptor;
 import se.irori.kafka.claimcheck.SerializingClaimCheckProducerInterceptor;
-import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys;
+import se.irori.kafka.claimcheck.TestUtils;
 
 public class ProduceConsumeKafkaAzureIT extends AbstractClaimCheckIT {
 
@@ -55,9 +57,11 @@ public class ProduceConsumeKafkaAzureIT extends AbstractClaimCheckIT {
     injectConfigFromSystemProperties(producerConfig, azuriteContainer, "producer.");
     // https://github.com/Azure/Azurite#default-storage-account
 
-    producerConfig.put(
-        Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG,
-        10);
+    // use default value
+    // producerConfig.put(CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_CONFIG, 10);
+    producerConfig.putIfAbsent(
+        BaseClaimCheckConfig.Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG,
+        AzureBlobStorageClaimCheckBackend.class);
     producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
         kafkaContainer.getBootstrapServers());
 
@@ -70,6 +74,9 @@ public class ProduceConsumeKafkaAzureIT extends AbstractClaimCheckIT {
     injectConfigFromSystemProperties(consumerConfig, azuriteContainer, "consumer.");
     consumerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
         kafkaContainer.getBootstrapServers());
+    consumerConfig.putIfAbsent(
+        BaseClaimCheckConfig.Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG,
+        AzureBlobStorageClaimCheckBackend.class);
     consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     consumerConfig.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
@@ -86,12 +93,7 @@ public class ProduceConsumeKafkaAzureIT extends AbstractClaimCheckIT {
   @Test
   public void testKafkaProduceConsume() throws ExecutionException, InterruptedException {
     String key = "myKey";
-    // String value = "01234567890";
-    StringBuilder valueBuilder = new StringBuilder();
-    while (valueBuilder.length() < 1024 * 1024) {
-      valueBuilder.append(UUID.randomUUID());
-    }
-    String value = valueBuilder.toString();
+    String value = TestUtils.getRandomString(1024 * 1024);
 
     RecordMetadata recordMetadata = producer.send(new ProducerRecord<>(TOPIC, key, value)).get();
 

@@ -12,24 +12,25 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.Before;
 import org.junit.Test;
-import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig;
 
 public class StringDeserializingClaimCheckConsumerInterceptorTest {
 
-  DummyClaimCheckConsumerInterceptor unit;
+  DeserializingClaimCheckConsumerInterceptor<String,String> unit;
 
   @Before
   public void setup() {
-    unit = new DummyClaimCheckConsumerInterceptor();
+    unit = new DeserializingClaimCheckConsumerInterceptor<>();
+
+
     HashMap<String, Object> config = new HashMap<>();
-    config.put(
-            AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_ENDPOINT_CONFIG, "https://someEndpoint");
-    config.put(
-            AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG, "value:testSasToken");
     config.put(
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     config.put(
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+
+    FakeClaimCheckBackend.resetCounter();
+    config.put(
+        BaseClaimCheckConfig.Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, FakeClaimCheckBackend.class);
     unit.configure(config);
   }
 
@@ -39,7 +40,7 @@ public class StringDeserializingClaimCheckConsumerInterceptorTest {
     // GIVEN
     ConsumerRecord<String, String> consumerRecord =
         new ConsumerRecord<>("a", 1, 0, "key", "x");
-    consumerRecord.headers().add(AbstractClaimCheckProducerInterceptor.HEADER_MESSAGE_IS_CLAIM_CHECK, "abc123".getBytes(
+    consumerRecord.headers().add(SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK, "abc123".getBytes(
         StandardCharsets.UTF_8));
     ConsumerRecords<String, String> records = new ConsumerRecords<>(
             Collections.singletonMap(new TopicPartition("a", 1),
@@ -55,7 +56,7 @@ public class StringDeserializingClaimCheckConsumerInterceptorTest {
     assertEquals("a", record.topic());
     assertEquals("key", record.key());
     assertEquals(0, record.offset());
-    assertEquals(1, unit.getCount());
+    assertEquals(1, FakeClaimCheckBackend.getCount());
   }
 
   @Test
@@ -72,7 +73,7 @@ public class StringDeserializingClaimCheckConsumerInterceptorTest {
     // THEN
     assertEquals(1, result.count());
     assertEquals("x", result.iterator().next().value());
-    assertEquals(0, unit.getCount());
+    assertEquals(0, FakeClaimCheckBackend.getCount());
   }
 
   @Test
@@ -90,28 +91,7 @@ public class StringDeserializingClaimCheckConsumerInterceptorTest {
     // THEN
     assertEquals(1, result.count());
     assertEquals(nullStr, result.iterator().next().value());
-    assertEquals(0, unit.getCount());
+    assertEquals(0, FakeClaimCheckBackend.getCount());
   }
 
-
-  public static class DummyClaimCheckConsumerInterceptor
-      extends DeserializingClaimCheckConsumerInterceptor<String,String> {
-
-    private int counter = 0;
-
-    public int getCount() {
-      return counter;
-    }
-
-    @Override
-    public byte[] checkOut(ClaimCheck claimCheck) {
-      String counterString = (counter++)+"";
-      return counterString.getBytes(StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public void close() {
-
-    }
-  }
 }

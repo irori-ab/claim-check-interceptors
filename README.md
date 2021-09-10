@@ -65,6 +65,13 @@ az storage account generate-sas \
  --https-only \
  --expiry $(date -v +6m +%Y-%m-%d) | tr -d '"' > my-topic-sas-write.sastoken 
 
+az storage container generate-sas \
+ --account-name claimcheckcitest \
+ --permissions racwl \
+ --name my-topic \
+ --https-only \
+ --expiry $(date -v +6m +%Y-%m-%d) | tr -d '"' > my-topic-sas-write.sastoken 
+
 # consumer: rl
 # (r) read
 # (l) list

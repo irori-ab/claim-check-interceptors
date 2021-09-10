@@ -1,6 +1,4 @@
-package se.irori.kafka.claimcheck.azure;
-
-import static se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG;
+package se.irori.kafka.claimcheck;
 
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -15,12 +13,16 @@ import org.apache.kafka.common.config.ConfigException;
  */
 public class BaseClaimCheckConfig extends AbstractConfig {
 
-  // TODO: does this account for headers as well?
-  private static final int CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_DEFAULT = 1048588;
+  // Use default value for "max.request.size" -  The maximum size of a request in bytes.
+  // conservatively with a 512 byte buffer
+  // default: 1048576 (1024 * 1024)
+  public static final int
+      CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_DEFAULT = 1048576 - 512;
 
   private static ConfigDef buildConfigDef(ConfigDef base) {
-    base.define(CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG, ConfigDef.Type.LONG,
-        CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_DEFAULT,
+    base.define(Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_CONFIG,
+        ConfigDef.Type.LONG,
+        CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_DEFAULT,
         ConfigDef.Importance.MEDIUM, "TODO docs");
 
     base.define(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ConfigDef.Type.CLASS,
@@ -38,6 +40,10 @@ public class BaseClaimCheckConfig extends AbstractConfig {
     base.define(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ConfigDef.Type.CLASS,
             null,
             ConfigDef.Importance.MEDIUM, "TODO docs");
+
+    base.define(Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, ConfigDef.Type.CLASS,
+        null,
+        ConfigDef.Importance.MEDIUM, "TODO docs");
 
     return base;
   }
@@ -73,5 +79,15 @@ public class BaseClaimCheckConfig extends AbstractConfig {
     // assume parse is enough
   }
 
+  /**
+   * Config keys for {@link BaseClaimCheckConfig}.
+   */
+  public static class Keys {
+    public static final String CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_CONFIG
+        = "claimcheck.checkin.uncompressed-batch-size.over.bytes";
+
+    public static final String CLAIMCHECK_BACKEND_CLASS_CONFIG
+        = "claimcheck.backend.class";
+  }
 
 }

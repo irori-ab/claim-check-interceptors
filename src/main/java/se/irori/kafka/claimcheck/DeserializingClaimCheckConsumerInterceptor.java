@@ -12,8 +12,6 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.serialization.Deserializer;
-import se.irori.kafka.claimcheck.azure.AzureBlobClaimCheckConsumerInterceptor;
-import se.irori.kafka.claimcheck.azure.BaseClaimCheckConfig;
 
 /**
  * Abstract implementation of the ClaimCheck pattern consumer side.
@@ -23,7 +21,7 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
 
   private Deserializer<V> valueDeserializer;
 
-  private AbstractClaimCheckConsumerInterceptor claimCheckConsumerInterceptor;
+  private ClaimCheckBackend claimCheckBackend;
 
   @SuppressWarnings("unchecked")
   @Override
@@ -32,9 +30,8 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
     this.valueDeserializer = baseClaimCheckConfig.getConfiguredInstance(
         ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, Deserializer.class);
 
-    // TODO: make it generic abstract ProducerInterceptor
-    claimCheckConsumerInterceptor = new AzureBlobClaimCheckConsumerInterceptor();
-    claimCheckConsumerInterceptor.configure(configs);
+    this.claimCheckBackend = baseClaimCheckConfig.getConfiguredInstance(
+        BaseClaimCheckConfig.Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, ClaimCheckBackend.class);
   }
 
   // we (probably) need to propagate the deprecated checksum field
@@ -75,16 +72,16 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
   }
 
   public byte[] checkOut(ClaimCheck claimCheck) {
-    return claimCheckConsumerInterceptor.checkOut(claimCheck);
+    return claimCheckBackend.checkOut(claimCheck);
   }
 
   /**
-   * Check if record is a Claimcheck.
+   * Check if record is a Claim Check.
    */
   public boolean isClaimCheck(ConsumerRecord<K, V> record) {
     boolean isClaimCheck = false;
     for (Header header : record.headers()) {
-      if (AbstractClaimCheckProducerInterceptor.HEADER_MESSAGE_IS_CLAIM_CHECK
+      if (SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK
           .equals(header.key())) {
         isClaimCheck = true;
       }
@@ -100,7 +97,7 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
   public byte[] getClaimCheckRefFromHeader(ConsumerRecord<K, V> record) {
     byte[] ret = null;
     for (Header header : record.headers()) {
-      if (AbstractClaimCheckProducerInterceptor.HEADER_MESSAGE_IS_CLAIM_CHECK
+      if (SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK
           .equals(header.key())) {
         ret = header.value();
       }

@@ -1,17 +1,18 @@
 package se.irori.kafka.claimcheck;
 
-import static se.irori.kafka.claimcheck.AbstractClaimCheckProducerInterceptor.HEADER_MESSAGE_IS_CLAIM_CHECK;
-
+import java.util.Collections;
 import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerInterceptor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.Headers;
+import org.apache.kafka.common.record.DefaultRecordBatch;
+import org.apache.kafka.common.record.SimpleRecord;
 import org.apache.kafka.common.serialization.Serializer;
-import se.irori.kafka.claimcheck.azure.AzureBlobClaimCheckProducerInterceptor;
+import se.irori.kafka.claimcheck.BaseClaimCheckConfig.Keys;
 import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig;
-import se.irori.kafka.claimcheck.azure.BaseClaimCheckConfig;
 
 /**
  * Implementation of the ClaimCheck pattern producer side.
@@ -19,21 +20,23 @@ import se.irori.kafka.claimcheck.azure.BaseClaimCheckConfig;
 public class SerializingClaimCheckProducerInterceptor<K, V>
     implements ProducerInterceptor<K, V> {
 
-  // TODO: does this account for headers as well?
-  private long checkinUncompressedSizeOverBytes = 1048588;
+  public static final String HEADER_MESSAGE_CLAIM_CHECK = "message-claim-check";
+
+  private long checkinUncompressedSizeOverBytes =
+      BaseClaimCheckConfig.CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_DEFAULT;
 
   private Serializer<K> keySerializer;
 
   private Serializer<V> valueSerializer;
 
-  private AbstractClaimCheckProducerInterceptor claimCheckProducerInterceptor;
+  private ClaimCheckBackend claimCheckBackend;
 
   @Override
   @SuppressWarnings("unchecked")
   public void configure(Map<String, ?> configs) {
     BaseClaimCheckConfig baseClaimCheckConfig = BaseClaimCheckConfig.validatedConfig(configs);
     checkinUncompressedSizeOverBytes = baseClaimCheckConfig.getLong(
-      AzureClaimCheckConfig.Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG);
+      Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_CONFIG);
 
     this.valueSerializer = baseClaimCheckConfig
             .getConfiguredInstance(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, Serializer.class);
@@ -41,74 +44,65 @@ public class SerializingClaimCheckProducerInterceptor<K, V>
     this.keySerializer = baseClaimCheckConfig
             .getConfiguredInstance(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, Serializer.class);
 
-    // TODO: make it generic abstract ProducerInterceptor
-    claimCheckProducerInterceptor = new AzureBlobClaimCheckProducerInterceptor();
-    claimCheckProducerInterceptor.configure(configs);
+    this.claimCheckBackend = baseClaimCheckConfig.getConfiguredInstance(
+        Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, ClaimCheckBackend.class);
   }
 
   @Override
   public ProducerRecord<K, V> onSend(ProducerRecord<K, V> producerRecord) {
-    long headerTotalSize = 0;
-
-    for (Header header : producerRecord.headers()) {
-      headerTotalSize += header.key().length() + header.value().length;
-    }
-
-    final long keySize;
-    if (producerRecord.key() == null) {
-      keySize = 0;
-    } else {
-      byte[] keyBytes = keySerializer.serialize(
+    final byte[] keyBytes = keySerializer.serialize(
           producerRecord.topic(),
           producerRecord.headers(),
-          producerRecord.key());
-      keySize = keyBytes.length;
-    }
+          producerRecord.key()
+    );
 
-    final long valueSize;
-    byte[] valueBytes = null;
-    if (producerRecord.value() == null) {
-      valueSize = 0;
-    } else {
-      valueBytes = valueSerializer.serialize(
+    final byte[] valueBytes = valueSerializer.serialize(
           producerRecord.topic(),
           producerRecord.headers(),
-          producerRecord.value());
-      valueSize = valueBytes.length;
-    }
+          producerRecord.value()
+    );
 
-    if (keySize + valueSize + headerTotalSize > checkinUncompressedSizeOverBytes) {
-      ClaimCheck claimCheck = claimCheck(new ProducerRecord<>(producerRecord.topic(),
-                      producerRecord.partition(),
-                      producerRecord.timestamp(),
-                      null,
-                      valueBytes,
-                      null));
+    if (isAboveClaimCheckLimit(producerRecord, keyBytes, valueBytes)) {
+      ClaimCheck claimCheck = claimCheckBackend.checkIn(new ProducerRecord<>(producerRecord.topic(),
+          producerRecord.partition(),
+          producerRecord.timestamp(),
+          null,
+          valueBytes,
+          null)
+      );
+
       return new ProducerRecord<>(producerRecord.topic(),
           producerRecord.partition(),
           producerRecord.timestamp(),
           producerRecord.key(),
           null, // TODO: Fix how it interacts with log compaction
-          producerRecord.headers().add(HEADER_MESSAGE_IS_CLAIM_CHECK, claimCheck.serialize())
+          producerRecord.headers().add(HEADER_MESSAGE_CLAIM_CHECK, claimCheck.serialize())
       );
     } else {
       return producerRecord;
     }
   }
 
-  public ClaimCheck claimCheck(ProducerRecord<byte[], byte[]> largeRecord) {
-    return claimCheckProducerInterceptor.checkIn(largeRecord);
+  private boolean isAboveClaimCheckLimit(ProducerRecord<?, ?> originalRecord,
+                                        byte[] keyBytes, byte[] valueBytes) {
+    Headers headers = originalRecord.headers();
+    long timestamp = originalRecord.timestamp() == null ? 0 : originalRecord.timestamp();
+    int batchSizeInBytes = DefaultRecordBatch.sizeInBytes(Collections.singleton(
+        new SimpleRecord(timestamp, keyBytes, valueBytes,
+            headers.toArray())));
+
+    return batchSizeInBytes > checkinUncompressedSizeOverBytes;
   }
 
   @Override
   public void onAcknowledgement(RecordMetadata recordMetadata, Exception e) {
-    claimCheckProducerInterceptor.onAcknowledgement(recordMetadata, e);
+    // do nothing by default
   }
 
   @Override
   public void close() {
-    claimCheckProducerInterceptor.close();
     keySerializer.close();
     valueSerializer.close();
+    claimCheckBackend.close();
   }
 }

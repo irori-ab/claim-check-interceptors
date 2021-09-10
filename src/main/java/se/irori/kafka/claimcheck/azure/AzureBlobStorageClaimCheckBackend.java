@@ -1,22 +1,26 @@
 package se.irori.kafka.claimcheck.azure;
 
+import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.BlobUrlParts;
 import java.io.ByteArrayInputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
-import se.irori.kafka.claimcheck.AbstractClaimCheckProducerInterceptor;
+import org.apache.kafka.common.errors.KafkaStorageException;
 import se.irori.kafka.claimcheck.ClaimCheck;
+import se.irori.kafka.claimcheck.ClaimCheckBackend;
 
 /**
  * Implementation of the ProducerInterceptor backed by Azure Blob Storage.
  */
-public class AzureBlobClaimCheckProducerInterceptor extends AbstractClaimCheckProducerInterceptor {
+public class AzureBlobStorageClaimCheckBackend<K, V> implements ClaimCheckBackend {
 
   private final ConcurrentHashMap<String, BlobContainerClient> topicContainerClients
       = new ConcurrentHashMap<>();
@@ -42,6 +46,28 @@ public class AzureBlobClaimCheckProducerInterceptor extends AbstractClaimCheckPr
   }
 
   @Override
+  public byte[] checkOut(ClaimCheck claimCheck) {
+    String blobUrl = claimCheck.getReference();
+
+    BlobUrlParts parts;
+    try {
+      parts = BlobUrlParts.parse(new URL(blobUrl));
+    } catch (MalformedURLException e) {
+      throw new KafkaStorageException("Bad Azure claim check url: " + blobUrl);
+    }
+
+    BlobContainerClient blobContainerClient =
+        topicContainerClients.computeIfAbsent(parts.getBlobContainerName(),
+            t -> blobServiceClient.getBlobContainerClient(t));
+
+    BlobClient blobClient = blobContainerClient.getBlobClient(parts.getBlobName());
+
+    BinaryData binaryData = blobClient.downloadContent();
+
+    return binaryData.toBytes();
+  }
+
+  @Override
   public void configure(Map<String, ?> configs) {
     AzureClaimCheckConfig config = AzureClaimCheckConfig.validatedConfig(configs);
     String connectionString =
@@ -61,13 +87,4 @@ public class AzureBlobClaimCheckProducerInterceptor extends AbstractClaimCheckPr
         .buildClient();
   }
 
-  @Override
-  public void onAcknowledgement(RecordMetadata recordMetadata, Exception e) {
-
-  }
-
-  @Override
-  public void close() {
-
-  }
 }

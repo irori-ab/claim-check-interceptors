@@ -1,36 +1,35 @@
 package se.irori.kafka.claimcheck;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.HashMap;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig;
-
-import java.util.HashMap;
-
-import static org.junit.Assert.assertEquals;
 
 public class StringSerializingClaimCheckProducerInterceptorTest {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(StringSerializingClaimCheckProducerInterceptorTest.class);
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(StringSerializingClaimCheckProducerInterceptorTest.class);
 
-  DummySerializingClaimCheckProducerInterceptor unit;
+  SerializingClaimCheckProducerInterceptor<String,String> unit;
 
   @Before
   public void setup() {
-    unit = new DummySerializingClaimCheckProducerInterceptor(); // reset counter
+    unit = new SerializingClaimCheckProducerInterceptor<>();
     HashMap<String, Object> config = new HashMap<>();
     config.put(
-        AzureClaimCheckConfig.Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG, 10);
+        BaseClaimCheckConfig.Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_CONFIG, 200);
+
+    FakeClaimCheckBackend.resetCounter();
     config.put(
-            AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_ENDPOINT_CONFIG, "https://someEndpoint");
-    config.put(
-            AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG, "value:testSasToken");
+        BaseClaimCheckConfig.Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, FakeClaimCheckBackend.class);
+
     config.put(
             ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     config.put(
@@ -42,19 +41,19 @@ public class StringSerializingClaimCheckProducerInterceptorTest {
   public void onSendLargeString() {
     // GIVEN the interceptor is configured with max limit 10 bytes
 
-    // WHEN sending a record with null key, and body > 10 bytes
+    // WHEN sending a record with null key, and body > 100 bytes (with margin)
+    String body = TestUtils.getRandomString(200);
     ProducerRecord<String, String> producerRecord =
-            new ProducerRecord<>("dummyTopic",
-                    "01234567890");
+            new ProducerRecord<>("dummyTopic", body);
     ProducerRecord<String, String> result = unit.onSend(producerRecord);
 
     Header headerResult = result.headers().iterator().next();
 
     // THEN result should be a claim check reference to the 0 counter value from the dummy impl
     assertEquals("0", new ClaimCheck(headerResult.value()).getReference());
-    assertEquals(AbstractClaimCheckProducerInterceptor.HEADER_MESSAGE_IS_CLAIM_CHECK,
+    assertEquals(SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK,
         headerResult.key());
-    assertEquals(1, unit.getCount());
+    assertEquals(1, FakeClaimCheckBackend.getCount());
   }
 
   @Test
@@ -62,15 +61,15 @@ public class StringSerializingClaimCheckProducerInterceptorTest {
     // GIVEN the interceptor is configured with max limit 10 bytes
 
     // WHEN sending a record with null key, and body < 10 bytes
+    String body = TestUtils.getRandomString(10);
     ProducerRecord<String, String> producerRecord =
-            new ProducerRecord<>("dummyTopic",
-                    "0123456789");
+            new ProducerRecord<>("dummyTopic", body);
 
     ProducerRecord<String, String> result = unit.onSend(producerRecord);
 
     // THEN result should be a claim check reference to the 0 counter value from the dummy impl
-    assertEquals("0123456789", result.value());
-    assertEquals(0, unit.getCount());
+    assertEquals(body, result.value());
+    assertEquals(0, FakeClaimCheckBackend.getCount());
   }
 
   @Test
@@ -78,7 +77,7 @@ public class StringSerializingClaimCheckProducerInterceptorTest {
     // GIVEN the interceptor is configured with max limit 10 bytes
 
     String nullStr = null;
-    // WHEN sending a record with null key, and body < 10 bytes
+    // WHEN sending a record with null key, and null body
     ProducerRecord<String, String> producerRecord =
             new ProducerRecord<>("dummyTopic",
                     nullStr);
@@ -87,31 +86,8 @@ public class StringSerializingClaimCheckProducerInterceptorTest {
 
     // THEN result should be a claim check reference to the 0 counter value from the dummy impl
     assertEquals(nullStr, result.value());
-    assertEquals(0, unit.getCount());
+    assertEquals(0, FakeClaimCheckBackend.getCount());
   }
 
-  public static class DummySerializingClaimCheckProducerInterceptor
-      extends SerializingClaimCheckProducerInterceptor<String, String> {
 
-    private int counter = 0;
-
-    public int getCount() {
-      return counter;
-    }
-
-    @Override
-    public ClaimCheck claimCheck(ProducerRecord<byte[], byte[]> largeRecord) {
-      return new ClaimCheck((counter++) + "");
-    }
-
-    @Override
-    public void onAcknowledgement(RecordMetadata recordMetadata, Exception e) {
-
-    }
-
-    @Override
-    public void close() {
-
-    }
-  }
 }

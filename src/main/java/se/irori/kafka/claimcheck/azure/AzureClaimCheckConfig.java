@@ -154,8 +154,5 @@ public class AzureClaimCheckConfig extends AbstractConfig {
     public static final String AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG
         = "azure.blob.storage.account.sastoken.from";
 
-    public static final String CLAIMCHECK_CHECKIN_UNCOMPRESSED_SIZE_OVER_BYTES_CONFIG
-        = "claimcheck.checkin.uncompressed-size.over.bytes";
-
   }
 }
