@@ -4,7 +4,9 @@ package se.irori.kafka.claimcheck;
 import java.util.Base64;
 import java.util.Random;
 
-
+/**
+ * Common utility methods for tests.
+ */
 public class TestUtils {
 
   private static Random RANDOM = new Random(0L);

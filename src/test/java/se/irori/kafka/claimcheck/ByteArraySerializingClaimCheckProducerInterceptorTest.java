@@ -11,6 +11,9 @@ import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Unit test the SerializingClaimCheckProducerInterceptor with byte[] datatypes.
+ */
 public class ByteArraySerializingClaimCheckProducerInterceptorTest {
 
   SerializingClaimCheckProducerInterceptor<byte[],byte[]> unit;

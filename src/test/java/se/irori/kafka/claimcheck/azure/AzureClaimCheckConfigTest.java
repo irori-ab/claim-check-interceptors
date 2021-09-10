@@ -7,6 +7,9 @@ import org.apache.kafka.common.config.ConfigException;
 import org.junit.Test;
 import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys;
 
+/**
+ * Unit test AzureClaimCheckConfig for valid config combinations.
+ */
 public class AzureClaimCheckConfigTest {
 
   private AzureClaimCheckConfig unit;

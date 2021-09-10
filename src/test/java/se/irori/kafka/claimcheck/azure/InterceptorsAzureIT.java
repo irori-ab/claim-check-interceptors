@@ -24,6 +24,10 @@ import se.irori.kafka.claimcheck.DeserializingClaimCheckConsumerInterceptor;
 import se.irori.kafka.claimcheck.SerializingClaimCheckProducerInterceptor;
 import se.irori.kafka.claimcheck.TestUtils;
 
+/**
+ * Integration test on the ProducerInterceptor/ConsumerInterceptor level, against
+ * a realistic Azure backend (Azurite emulator or real backend).
+ */
 public class InterceptorsAzureIT extends AbstractClaimCheckIT {
 
   SerializingClaimCheckProducerInterceptor<String,String> producerInterceptor;

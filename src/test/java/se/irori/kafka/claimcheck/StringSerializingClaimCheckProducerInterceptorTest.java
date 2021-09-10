@@ -12,6 +12,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Unit test the SerializingClaimCheckProducerInterceptor with String datatypes.
+ */
 public class StringSerializingClaimCheckProducerInterceptorTest {
 
   private static final Logger LOGGER =

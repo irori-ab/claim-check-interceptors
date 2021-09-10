@@ -14,6 +14,9 @@ import org.apache.kafka.common.serialization.ByteArrayDeserializer;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Unit test the DeserializingClaimCheckConsumerInterceptor with byte[] datatypes.
+ */
 public class ByteArrayDeserializingClaimCheckConsumerInterceptorTest {
 
   DeserializingClaimCheckConsumerInterceptor<byte[],byte[]> unit;

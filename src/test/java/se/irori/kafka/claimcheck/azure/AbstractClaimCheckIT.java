@@ -7,6 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys;
 
+/**
+ * Helper methods for integration tests to inject dynamic config from system properties (typically
+ * set via Maven profiles), or defaults.
+ */
 public class AbstractClaimCheckIT {
 
   private static final List<String> CONFIG_FROM_SYS_PROPS = Arrays.asList(

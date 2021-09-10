@@ -13,6 +13,9 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * Unit test the DeserializingClaimCheckConsumerInterceptor with String datatypes.
+ */
 public class StringDeserializingClaimCheckConsumerInterceptorTest {
 
   DeserializingClaimCheckConsumerInterceptor<String,String> unit;

@@ -3,8 +3,10 @@ package se.irori.kafka.claimcheck;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.testcontainers.shaded.org.apache.commons.lang.NotImplementedException;
 
+/**
+ * Fake implementation of {@link ClaimCheckBackend} to support basic unit test verification.
+ */
 public class FakeClaimCheckBackend
     implements ClaimCheckBackend {
 

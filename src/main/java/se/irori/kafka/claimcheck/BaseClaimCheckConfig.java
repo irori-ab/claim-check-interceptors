@@ -56,9 +56,9 @@ public class BaseClaimCheckConfig extends AbstractConfig {
    * @throws ConfigException if any config option is invalid
    */
   public static BaseClaimCheckConfig validatedConfig(Map<?, ?> originals) {
-    BaseClaimCheckConfig baseAzureClaimCheckConfig = new BaseClaimCheckConfig(originals);
-    baseAzureClaimCheckConfig.validate();
-    return baseAzureClaimCheckConfig;
+    BaseClaimCheckConfig baseClaimCheckConfig = new BaseClaimCheckConfig(originals);
+    baseClaimCheckConfig.validate();
+    return baseClaimCheckConfig;
   }
 
   BaseClaimCheckConfig(ConfigDef configDef, Map<?, ?> originals) {
