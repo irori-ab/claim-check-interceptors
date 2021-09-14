@@ -1,6 +1,9 @@
 # Claim Check interceptors
 Library implementing the Claim Check pattern for use with Kafka and Azure Blob Storage
 
+## Overview design
+![Claim check interceptor design diagram](/docs/claim-check-blob.png)
+
 ## Building 
 
 `./mvnw clean install`
@@ -88,7 +91,41 @@ az storage account generate-sas \
  --expiry $(date -v +6m +%Y-%m-%d) | tr -d '"' > my-topic-sas-read.sastoken 
 ```
 
+## Set Blob expiry
+The following sets a Storage Account Lifecycle Management policy that will delete blobs after 14 days:
+```
+cat << EOF > example-expiry-policy-14-days.json
+{
+  "rules": [
+    {
+      "enabled": true,
+      "name": "expire-claim-check-messages",
+      "type": "Lifecycle",
+      "definition": {
+        "actions": {
+          "baseBlob": {
+            "delete": {
+              "daysAfterModificationGreaterThan": 14
+            }
+          }
+        },
+        "filters": {
+          "blobTypes": [
+            "blockBlob"
+          ]
+        }
+      }
+    }
+  ]
+}
+EOF
+
+az storage account management-policy create --account-name myaccount --policy @example-expiry-policy-14-days.json --resource-group myresourcegroup
+```
+
 ## Reference Documentation 
 
 - [Azure SDK documentation](https://azuresdkartifacts.blob.core.windows.net/azure-sdk-for-java/index.html)
 - [SAS token structure](https://docs.microsoft.com/en-us/rest/api/storageservices/create-service-sas)
+- [Azure Blob Management Policies CLI actions](https://docs.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-overview)
+- [Azure Blob Management Policies](https://docs.microsoft.com/en-us/azure/storage/blobs/lifecycle-management-overview)

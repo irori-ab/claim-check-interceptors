@@ -20,7 +20,7 @@ import se.irori.kafka.claimcheck.ClaimCheckBackend;
 /**
  * Implementation of the ProducerInterceptor backed by Azure Blob Storage.
  */
-public class AzureBlobStorageClaimCheckBackend<K, V> implements ClaimCheckBackend {
+public class AzureBlobStorageClaimCheckBackend implements ClaimCheckBackend {
 
   private final ConcurrentHashMap<String, BlobContainerClient> topicContainerClients
       = new ConcurrentHashMap<>();
