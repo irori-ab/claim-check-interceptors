@@ -4,6 +4,44 @@ Library implementing the Claim Check pattern for use with Kafka and Azure Blob S
 ## Overview design
 ![Claim check interceptor design diagram](/docs/claim-check-blob.png)
 
+## Using
+Add the dependency:
+```
+<dependency>
+  <groupId>se.irori.kafka</groupId>
+  <artifactId>claim-check-interceptors</artifactId>
+  <version>1.0-SNAPSHOT</version>
+</dependency>
+```
+
+Configure your Kafka consumer/producer properties:
+```
+// common
+config.put(
+    BaseClaimCheckConfig.Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG,
+    AzureBlobStorageClaimCheckBackend.class);
+config.put(
+    AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_ENDPOINT_CONFIG,
+    "https://MY_STORAGE_ACCOUNT_NAME.blob.core.windows.net");    
+config.put(
+    AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG,
+    "file:/path/to/textfile/with/sas.token");   
+
+// producer
+// any serializer
+config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+config.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG,
+    SerializingClaimCheckProducerInterceptor.class.getName());
+    
+// consumer 
+// any deserializer
+config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+config.put(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG,
+    DeserializingClaimCheckConsumerInterceptor.class.getName());
+```
+
 ## Building 
 
 `./mvnw clean install`
@@ -20,7 +58,6 @@ See [Docker pre-requisites](https://www.testcontainers.org/supported_docker_envi
 for running these tests locally.
 
 ## Run integration tests
-
 
 ### Azurite
 With `azurite` Azure API emulator: `mvn verify -Pazurite`.
