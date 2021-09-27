@@ -21,7 +21,7 @@ public interface ClaimCheckBackend extends Configurable  {
   ClaimCheck checkIn(ProducerRecord<byte[], byte[]> largeRecord);
 
   /**
-   * Retrieve a previously store record, using the Claim Check (reference).
+   * Retrieve a previously stored record, using the Claim Check (reference).
    *
    * @param claimCheck previously issued claim check for this backend
    * @return the message payload previously checked in

@@ -1,5 +1,19 @@
 # Azure Blob Storage claim check Backend
 
+## Note about Azure SDK versions
+The Azure SDK has varying compatibility with different Java frameworks in different versions.
+
+See this [note](https://github.com/Azure/azure-storage-java/blob/master/V12%20Upgrade%20Story.md) about the SDK
+version evolution. It seems that we can cover most runtime environments by supporting v8 and v12+ of the SDK.
+
+Prefer to use the `claim-check-interceptors-azure` if it works with your runtime environment. Otherwise
+you can try `claim-check-interceptors-azure-v8`, which e.g. seems to work well with Spring Boot 2.1 and 2.2.
+
+If you encounter dependency issues with the v12+ version of the SDK related to JSON serialization or HTTP
+clients, you can try working with the pluggable mechanisms in the SDK:
+- [Custom JSON serializer](https://github.com/Azure/azure-sdk-for-java/wiki/Custom-JSON-serializer)
+- [Custom HTTP client](https://github.com/Azure/azure-sdk-for-java/wiki/Custom-HTTP-Clients)
+
 ## Run integration tests
 
 ### Azurite
