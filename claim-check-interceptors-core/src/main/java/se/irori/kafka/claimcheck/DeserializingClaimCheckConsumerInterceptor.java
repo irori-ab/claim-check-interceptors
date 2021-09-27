@@ -38,8 +38,7 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
   // we (probably) need to propagate the deprecated checksum field
   @SuppressWarnings("deprecation")
   @Override
-  public ConsumerRecords<K, V> onConsume(
-      ConsumerRecords<K, V> consumerRecords) {
+  public ConsumerRecords<K, V> onConsume(ConsumerRecords<K, V> consumerRecords) {
 
     HashMap<TopicPartition, List<ConsumerRecord<K, V>>> newRecords = new HashMap<>();
 

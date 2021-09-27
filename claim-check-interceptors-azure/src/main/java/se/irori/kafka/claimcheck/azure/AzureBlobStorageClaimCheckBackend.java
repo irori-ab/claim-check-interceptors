@@ -18,7 +18,7 @@ import se.irori.kafka.claimcheck.ClaimCheck;
 import se.irori.kafka.claimcheck.ClaimCheckBackend;
 
 /**
- * Implementation of the ProducerInterceptor backed by Azure Blob Storage.
+ * Implementation of the ClaimCheckBackend backed by Azure Blob Storage v12+ SDK.
  */
 public class AzureBlobStorageClaimCheckBackend implements ClaimCheckBackend {
 
