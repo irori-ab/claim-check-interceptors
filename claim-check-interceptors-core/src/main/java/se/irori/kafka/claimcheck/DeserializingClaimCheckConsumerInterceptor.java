@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.StreamSupport;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerInterceptor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -79,14 +80,9 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
    * Check if record is a Claim Check.
    */
   public boolean isClaimCheck(ConsumerRecord<K, V> record) {
-    boolean isClaimCheck = false;
-    for (Header header : record.headers()) {
-      if (SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK
-          .equals(header.key())) {
-        isClaimCheck = true;
-      }
-    }
-    return isClaimCheck;
+    return StreamSupport.stream(record.headers().spliterator(), false)
+        .map(Header::key)
+        .anyMatch(SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK::equals);
   }
 
   /**
