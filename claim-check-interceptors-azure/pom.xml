@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>se.irori.kafka</groupId>
+    <artifactId>claim-check-interceptors-parent</artifactId>
+    <version>0.5.0</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <artifactId>claim-check-interceptors-azure</artifactId>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+
+    <producer.azure.blob.storage.account.endpoint/>
+    <producer.azure.blob.storage.account.sastoken.from/>
+    <consumer.azure.blob.storage.account.endpoint/>
+    <consumer.azure.blob.storage.account.sastoken.from/>
+    <azure-sdk.version>12.12.0</azure-sdk.version>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>se.irori.kafka</groupId>
+      <artifactId>claim-check-interceptors-core</artifactId>
+      <version>0.5.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>se.irori.kafka</groupId>
+      <artifactId>claim-check-test-tools</artifactId>
+      <version>0.5.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.azure</groupId>
+      <artifactId>azure-storage-blob</artifactId>
+      <version>${azure-sdk.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>kafka</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>integration-test</id>
+            <goals>
+              <goal>integration-test</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>verify</id>
+            <goals>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <systemPropertyVariables>
+            <producer.azure.blob.storage.account.endpoint>${producer.azure.blob.storage.account.endpoint}</producer.azure.blob.storage.account.endpoint>
+            <producer.azure.blob.storage.account.sastoken.from>${producer.azure.blob.storage.account.sastoken.from}</producer.azure.blob.storage.account.sastoken.from>
+            <consumer.azure.blob.storage.account.endpoint>${consumer.azure.blob.storage.account.endpoint}</consumer.azure.blob.storage.account.endpoint>
+            <consumer.azure.blob.storage.account.sastoken.from>${consumer.azure.blob.storage.account.sastoken.from}</consumer.azure.blob.storage.account.sastoken.from>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>azurite</id>
+      <properties>
+        <!-- default to empty, will trigger injection of Azurite config in IT cases -->
+      </properties>
+    </profile>
+    <profile>
+      <id>azure</id>
+      <properties>
+        <producer.azure.blob.storage.account.endpoint>https://claimcheckcitest.blob.core.windows.net/</producer.azure.blob.storage.account.endpoint>
+        <producer.azure.blob.storage.account.sastoken.from>file:${project.basedir}/my-topic-sas-write.sastoken</producer.azure.blob.storage.account.sastoken.from>
+        <consumer.azure.blob.storage.account.endpoint>https://claimcheckcitest.blob.core.windows.net/</consumer.azure.blob.storage.account.endpoint>
+        <consumer.azure.blob.storage.account.sastoken.from>file:${project.basedir}/my-topic-sas-read.sastoken</consumer.azure.blob.storage.account.sastoken.from>
+        <!-- <azure.blob.storage.account.url>
+          supply on commandline
+          -Dazure.blob.storage.account.endpoint=https://ACCOUNTNAME.blob.core.windows.net
+        -->
+      </properties>
+    </profile>
+  </profiles>
+
+</project>
