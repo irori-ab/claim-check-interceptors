@@ -45,6 +45,15 @@ public class BaseClaimCheckConfig extends AbstractConfig {
         null,
         ConfigDef.Importance.MEDIUM, "TODO docs");
 
+    base.define(Keys.CLAIMCHECK_WRAPPED_VALUE_DESERIALIZER_CLASS, ConfigDef.Type.CLASS,
+        null,
+        ConfigDef.Importance.MEDIUM, "TODO docs");
+
+    base.define(Keys.CLAIMCHECK_WRAPPED_VALUE_SERIALIZER_CLASS, ConfigDef.Type.CLASS,
+        null,
+        ConfigDef.Importance.MEDIUM, "TODO docs");
+
+
     return base;
   }
 
@@ -88,6 +97,14 @@ public class BaseClaimCheckConfig extends AbstractConfig {
 
     public static final String CLAIMCHECK_BACKEND_CLASS_CONFIG
         = "claimcheck.backend.class";
+
+    public static final String CLAIMCHECK_WRAPPED_VALUE_DESERIALIZER_CLASS
+        = ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG
+          + ".wrapped.deserializer";
+
+    public static final String CLAIMCHECK_WRAPPED_VALUE_SERIALIZER_CLASS
+        = ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG
+        + ".wrapped.serializer";
   }
 
 }

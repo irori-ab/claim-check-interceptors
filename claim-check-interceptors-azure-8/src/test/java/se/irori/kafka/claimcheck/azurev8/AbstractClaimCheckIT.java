@@ -1,11 +1,11 @@
-package se.irori.kafka.claimcheck.azure;
+package se.irori.kafka.claimcheck.azurev8;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys;
+import se.irori.kafka.claimcheck.azurev8.AzureClaimCheckConfig.Keys;
 
 /**
  * Helper methods for integration tests to inject dynamic config from system properties (typically

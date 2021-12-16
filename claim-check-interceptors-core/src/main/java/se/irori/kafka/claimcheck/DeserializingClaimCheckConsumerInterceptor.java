@@ -4,14 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.StreamSupport;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerInterceptor;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
-import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.serialization.Deserializer;
 
 /**
@@ -30,6 +28,7 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
     BaseClaimCheckConfig baseClaimCheckConfig = BaseClaimCheckConfig.validatedConfig(configs);
     this.valueDeserializer = baseClaimCheckConfig.getConfiguredInstance(
         ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, Deserializer.class);
+    this.valueDeserializer.configure(configs, false);
 
     this.claimCheckBackend = baseClaimCheckConfig.getConfiguredInstance(
         BaseClaimCheckConfig.Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, ClaimCheckBackend.class);
@@ -46,8 +45,8 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
 
       List<ConsumerRecord<K, V>> partitionConsumerRecords = new ArrayList<>();
       for (ConsumerRecord<K, V> record : consumerRecords.records(partition)) {
-        if (isClaimCheck(record)) {
-          ClaimCheck claimCheck = new ClaimCheck(getClaimCheckRefFromHeader(record));
+        if (ClaimCheckUtils.isClaimCheck(record.headers())) {
+          ClaimCheck claimCheck = new ClaimCheck(ClaimCheckUtils.getClaimCheckRefFromHeader(record.headers()));
           V value = valueDeserializer
               .deserialize(record.topic(), record.headers(), checkOut(claimCheck));
 
@@ -73,31 +72,6 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
 
   public byte[] checkOut(ClaimCheck claimCheck) {
     return claimCheckBackend.checkOut(claimCheck);
-  }
-
-  /**
-   * Check if record is a Claim Check.
-   */
-  public boolean isClaimCheck(ConsumerRecord<K, V> record) {
-    return StreamSupport.stream(record.headers().spliterator(), false)
-        .map(Header::key)
-        .anyMatch(SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK::equals);
-  }
-
-  /**
-   * Get claim check reference from header.
-   *
-   * @param record the record to process headers for
-   */
-  public byte[] getClaimCheckRefFromHeader(ConsumerRecord<K, V> record) {
-    byte[] ret = null;
-    for (Header header : record.headers()) {
-      if (SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK
-          .equals(header.key())) {
-        ret = header.value();
-      }
-    }
-    return ret;
   }
 
   @Override

@@ -1,8 +1,8 @@
-package se.irori.kafka.claimcheck.azure;
+package se.irori.kafka.claimcheck.azurev8;
 
-import static se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_CONNECTION_STRING_CONFIG;
-import static se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_ENDPOINT_CONFIG;
-import static se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG;
+import static se.irori.kafka.claimcheck.azurev8.AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_CONNECTION_STRING_CONFIG;
+import static se.irori.kafka.claimcheck.azurev8.AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_ENDPOINT_CONFIG;
+import static se.irori.kafka.claimcheck.azurev8.AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

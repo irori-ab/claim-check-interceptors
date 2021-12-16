@@ -1,4 +1,4 @@
-package se.irori.kafka.claimcheck.azure;
+package se.irori.kafka.claimcheck.azurev8;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

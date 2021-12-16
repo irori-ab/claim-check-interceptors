@@ -29,6 +29,8 @@ public class SerializingClaimCheckProducerInterceptor<K, V>
 
   private ClaimCheckBackend claimCheckBackend;
 
+  private boolean isWrappingSerializerConfigured;
+
   @Override
   @SuppressWarnings("unchecked")
   public void configure(Map<String, ?> configs) {
@@ -38,9 +40,11 @@ public class SerializingClaimCheckProducerInterceptor<K, V>
 
     this.valueSerializer = baseClaimCheckConfig
             .getConfiguredInstance(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, Serializer.class);
+    this.valueSerializer.configure(baseClaimCheckConfig.originals(), false);
 
     this.keySerializer = baseClaimCheckConfig
             .getConfiguredInstance(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, Serializer.class);
+    this.keySerializer.configure(baseClaimCheckConfig.originals(), true);
 
     this.claimCheckBackend = baseClaimCheckConfig.getConfiguredInstance(
         Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, ClaimCheckBackend.class);
@@ -48,6 +52,11 @@ public class SerializingClaimCheckProducerInterceptor<K, V>
 
   @Override
   public ProducerRecord<K, V> onSend(ProducerRecord<K, V> producerRecord) {
+    // TODO: try catch around all, publish null on error, to propagate
+    // error indication to se.irori.kafka.claimcheck.ClaimCheckWrappingSerializer ?
+    // We need to be really careful, probably detect if that serializer is used,
+    // if not we would be silently dropping payloads :(
+
     final byte[] keyBytes = keySerializer.serialize(
           producerRecord.topic(),
           producerRecord.headers(),
