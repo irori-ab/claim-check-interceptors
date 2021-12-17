@@ -11,12 +11,17 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.Deserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract implementation of the ClaimCheck pattern consumer side.
  */
 public class DeserializingClaimCheckConsumerInterceptor<K, V>
     implements ConsumerInterceptor<K, V> {
+
+  private static final Logger LOG =
+      LoggerFactory.getLogger(DeserializingClaimCheckConsumerInterceptor.class);
 
   private Deserializer<V> valueDeserializer;
 
@@ -46,10 +51,15 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
       List<ConsumerRecord<K, V>> partitionConsumerRecords = new ArrayList<>();
       for (ConsumerRecord<K, V> record : consumerRecords.records(partition)) {
         if (ClaimCheckUtils.isClaimCheck(record.headers())) {
-          ClaimCheck claimCheck = new ClaimCheck(ClaimCheckUtils.getClaimCheckRefFromHeader(record.headers()));
+
+          ClaimCheck claimCheck =
+              new ClaimCheck(ClaimCheckUtils.getClaimCheckRefFromHeader(record.headers()));
+          LOG.trace("received claim check: topic={}, partition={}, offset={}, key={}, ref={}",
+              record.topic(), record.partition(), record.offset(), record.key(),
+              claimCheck.getReference());
           V value = valueDeserializer
               .deserialize(record.topic(), record.headers(), checkOut(claimCheck));
-
+          LOG.trace("checked out claim check: ref={}", claimCheck.getReference());
           ConsumerRecord<K, V> claimCheckRecord =
               new ConsumerRecord<>(record.topic(), record.partition(), record.offset(),
                   record.timestamp(), record.timestampType(), record.checksum(),

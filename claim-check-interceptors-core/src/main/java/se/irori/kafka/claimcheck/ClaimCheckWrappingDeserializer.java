@@ -6,8 +6,12 @@ import static se.irori.kafka.claimcheck.ClaimCheckUtils.isClaimCheck;
 import java.util.Map;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClaimCheckWrappingDeserializer<T> implements Deserializer<T> {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ClaimCheckWrappingDeserializer.class);
 
   private Deserializer<T> valueDeserializer;
   private ClaimCheckBackend claimCheckBackend;
@@ -63,9 +67,15 @@ public class ClaimCheckWrappingDeserializer<T> implements Deserializer<T> {
   public T deserialize(String topic, Headers headers, byte[] data) {
 
     if (isClaimCheck(headers)) {
+
       ClaimCheck claimCheck = new ClaimCheck(getClaimCheckRefFromHeader(headers));
-      return valueDeserializer
+      LOG.trace("received claim check: topic={}, ref={}",
+          topic, claimCheck.getReference());
+      T deserializedValue = valueDeserializer
           .deserialize(topic, headers, claimCheckBackend.checkOut(claimCheck));
+      LOG.trace("checked out claim check: topic={}, ref={}",
+          topic, claimCheck.getReference());
+      return deserializedValue;
     } else {
       return valueDeserializer
           .deserialize(topic, headers, data);

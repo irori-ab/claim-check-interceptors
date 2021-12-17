@@ -31,7 +31,7 @@ public class ByteArraySerializingClaimCheckProducerInterceptorTest {
     config.put(
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
 
-    FakeClaimCheckBackend.resetCounter();
+    FakeClaimCheckBackend.reset();
     config.put(
         BaseClaimCheckConfig.Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, FakeClaimCheckBackend.class);
 
@@ -50,7 +50,7 @@ public class ByteArraySerializingClaimCheckProducerInterceptorTest {
 
     Header headerResult = result.headers().iterator().next();
     // THEN result should be a claim check reference to the 0 counter value from the dummy impl
-    assertEquals("0", new ClaimCheck(headerResult.value()).getReference());
+    assertEquals("1", new ClaimCheck(headerResult.value()).getReference());
     assertEquals(SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK,
         headerResult.key());
     assertEquals(1, FakeClaimCheckBackend.getCount());

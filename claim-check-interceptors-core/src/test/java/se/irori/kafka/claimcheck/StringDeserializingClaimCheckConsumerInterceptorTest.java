@@ -31,7 +31,7 @@ public class StringDeserializingClaimCheckConsumerInterceptorTest {
     config.put(
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
 
-    FakeClaimCheckBackend.resetCounter();
+    FakeClaimCheckBackend.reset();
     config.put(
         BaseClaimCheckConfig.Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, FakeClaimCheckBackend.class);
     unit.configure(config);

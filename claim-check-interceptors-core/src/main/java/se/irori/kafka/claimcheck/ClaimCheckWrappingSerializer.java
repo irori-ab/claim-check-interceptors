@@ -15,14 +15,13 @@ public class ClaimCheckWrappingSerializer<T> implements Serializer<T> {
    * @param configs configs in key/value pairs
    * @param isKey   whether is for key or value
    */
+  @SuppressWarnings("unchecked")
   @Override
   public void configure(Map<String, ?> configs, boolean isKey) {
     BaseClaimCheckConfig baseClaimCheckConfig = BaseClaimCheckConfig.validatedConfig(configs);
     if (isKey) {
-      throw new IllegalStateException("Cannot wrap key serializer");
+      throw new IllegalStateException("Should not be used to wrap key serializer, only value");
     }
-
-    // TODO: validate using CC interceptor?
 
     this.valueSerializer = baseClaimCheckConfig.getConfiguredInstance(
         BaseClaimCheckConfig.Keys.CLAIMCHECK_WRAPPED_VALUE_SERIALIZER_CLASS, Serializer.class);
@@ -39,16 +38,13 @@ public class ClaimCheckWrappingSerializer<T> implements Serializer<T> {
    */
   @Override
   public byte[] serialize(String topic, Headers headers, T data) {
-    if (data == null) {
-      if (ClaimCheckUtils.isClaimCheck(headers)) {
+    if (ClaimCheckUtils.isClaimCheckError(headers)) {
+      String error = ClaimCheckUtils.getClaimCheckErrorStackTraceFromHeader(headers);
+
+      throw new KafkaStorageException("Claim check interceptor error detected:\n" + error);
+    } else if (ClaimCheckUtils.isClaimCheck(headers)) {
         // we need non-null value to trigger consumer serializer
         return new byte[0];
-      } else {
-        // assume claim check interceptor had some error
-        // NOTE: this excludes log compaction tombstone usecases for now
-        throw new KafkaStorageException("Null message but no claim check headers from "
-            + "interceptor, please check logs for interceptor errors");
-      }
     } else {
       return valueSerializer.serialize(topic, headers, data);
     }

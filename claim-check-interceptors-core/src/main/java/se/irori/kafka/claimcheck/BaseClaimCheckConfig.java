@@ -1,5 +1,7 @@
 package se.irori.kafka.claimcheck;
 
+import static org.apache.kafka.common.config.ConfigDef.NO_DEFAULT_VALUE;
+
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -42,7 +44,7 @@ public class BaseClaimCheckConfig extends AbstractConfig {
             ConfigDef.Importance.MEDIUM, "TODO docs");
 
     base.define(Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, ConfigDef.Type.CLASS,
-        null,
+        NO_DEFAULT_VALUE,
         ConfigDef.Importance.MEDIUM, "TODO docs");
 
     base.define(Keys.CLAIMCHECK_WRAPPED_VALUE_DESERIALIZER_CLASS, ConfigDef.Type.CLASS,

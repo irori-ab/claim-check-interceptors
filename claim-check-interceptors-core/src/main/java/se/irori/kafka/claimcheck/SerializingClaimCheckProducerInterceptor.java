@@ -1,5 +1,8 @@
 package se.irori.kafka.claimcheck;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -10,6 +13,8 @@ import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.record.DefaultRecordBatch;
 import org.apache.kafka.common.record.SimpleRecord;
 import org.apache.kafka.common.serialization.Serializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import se.irori.kafka.claimcheck.BaseClaimCheckConfig.Keys;
 
 /**
@@ -18,7 +23,11 @@ import se.irori.kafka.claimcheck.BaseClaimCheckConfig.Keys;
 public class SerializingClaimCheckProducerInterceptor<K, V>
     implements ProducerInterceptor<K, V> {
 
+  public static final Logger LOG =
+      LoggerFactory.getLogger(SerializingClaimCheckProducerInterceptor.class);
+
   public static final String HEADER_MESSAGE_CLAIM_CHECK = "message-claim-check";
+  public static final String HEADER_MESSAGE_CLAIM_CHECK_ERROR = "message-claim-check-error";
 
   private long checkinUncompressedSizeOverBytes =
       BaseClaimCheckConfig.CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_DEFAULT;
@@ -48,45 +57,72 @@ public class SerializingClaimCheckProducerInterceptor<K, V>
 
     this.claimCheckBackend = baseClaimCheckConfig.getConfiguredInstance(
         Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, ClaimCheckBackend.class);
+
+    // TODO: WARN if ClaimCheckWrappingSerializer is not configured
   }
 
   @Override
   public ProducerRecord<K, V> onSend(ProducerRecord<K, V> producerRecord) {
-    // TODO: try catch around all, publish null on error, to propagate
-    // error indication to se.irori.kafka.claimcheck.ClaimCheckWrappingSerializer ?
-    // We need to be really careful, probably detect if that serializer is used,
-    // if not we would be silently dropping payloads :(
-
-    final byte[] keyBytes = keySerializer.serialize(
+    try {
+      final byte[] keyBytes = keySerializer.serialize(
           producerRecord.topic(),
           producerRecord.headers(),
           producerRecord.key()
-    );
+      );
 
-    final byte[] valueBytes = valueSerializer.serialize(
+      final byte[] valueBytes = valueSerializer.serialize(
           producerRecord.topic(),
           producerRecord.headers(),
           producerRecord.value()
-    );
-
-    if (isAboveClaimCheckLimit(producerRecord, keyBytes, valueBytes)) {
-      ClaimCheck claimCheck = claimCheckBackend.checkIn(new ProducerRecord<>(producerRecord.topic(),
-          producerRecord.partition(),
-          producerRecord.timestamp(),
-          null,
-          valueBytes,
-          null)
       );
+      int valueBytesLength = valueBytes == null ? 0 : valueBytes.length;
 
+
+      if (isAboveClaimCheckLimit(producerRecord, keyBytes, valueBytes)) {
+        ClaimCheck claimCheck = claimCheckBackend.checkIn(new ProducerRecord<>(producerRecord.topic(),
+            producerRecord.partition(),
+            producerRecord.timestamp(),
+            null,
+            valueBytes,
+            null)
+        );
+
+        LOG.debug("checked in claim check: topic={}, key={}, ref={}, length={}",
+            producerRecord.topic(), producerRecord.key(), claimCheck.getReference(),
+            valueBytesLength);
+
+        // note: if using ClaimCheckWrappingSerializer this can probably be made to work
+        // somewhat with log compaction, since null will be replaced
+        return new ProducerRecord<>(producerRecord.topic(),
+            producerRecord.partition(),
+            producerRecord.timestamp(),
+            producerRecord.key(),
+            null,
+            producerRecord.headers().add(HEADER_MESSAGE_CLAIM_CHECK, claimCheck.serialize())
+        );
+      } else {
+        LOG.debug("not checking in claim check: topic={}, key={}, length={}",
+            producerRecord.topic(), producerRecord.key(), valueBytesLength);
+        return producerRecord;
+      }
+    } catch (Exception e) {
+      LOG.error("Error when processing claim check", e);
+      // exception that would have been silent for producer
+      // propagate for ClaimCheckWrappingSerializer to pick up and rethrow
+      StringWriter stackTraceWriter = new StringWriter();
+      PrintWriter out = new PrintWriter(stackTraceWriter);
+      e.printStackTrace(out);
+
+      // if user forgot to configure ClaimCheckWrappingSerializer we just leave
+      // payload as is, so that we don't silently lose it without an error propagated
       return new ProducerRecord<>(producerRecord.topic(),
           producerRecord.partition(),
           producerRecord.timestamp(),
           producerRecord.key(),
-          null, // TODO: Fix how it interacts with log compaction
-          producerRecord.headers().add(HEADER_MESSAGE_CLAIM_CHECK, claimCheck.serialize())
+          producerRecord.value(), // copy as is
+          producerRecord.headers().add(HEADER_MESSAGE_CLAIM_CHECK_ERROR,
+              stackTraceWriter.toString().getBytes(StandardCharsets.UTF_8))
       );
-    } else {
-      return producerRecord;
     }
   }
 

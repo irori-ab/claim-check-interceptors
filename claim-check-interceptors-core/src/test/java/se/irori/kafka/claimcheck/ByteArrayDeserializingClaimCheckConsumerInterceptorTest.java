@@ -30,7 +30,7 @@ public class ByteArrayDeserializingClaimCheckConsumerInterceptorTest {
     config.put(
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ByteArrayDeserializer.class);
 
-    FakeClaimCheckBackend.resetCounter();
+    FakeClaimCheckBackend.reset();
     config.put(
         BaseClaimCheckConfig.Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, FakeClaimCheckBackend.class);
 
