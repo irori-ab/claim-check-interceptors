@@ -96,6 +96,13 @@
             <producer.azure.blob.storage.account.sastoken.from>${producer.azure.blob.storage.account.sastoken.from}</producer.azure.blob.storage.account.sastoken.from>
             <consumer.azure.blob.storage.account.endpoint>${consumer.azure.blob.storage.account.endpoint}</consumer.azure.blob.storage.account.endpoint>
             <consumer.azure.blob.storage.account.sastoken.from>${consumer.azure.blob.storage.account.sastoken.from}</consumer.azure.blob.storage.account.sastoken.from>
+            <!--
+            <java.net.useSystemProxies>true</java.net.useSystemProxies>
+            <http.proxyHost>my-proxy-host.example.com</http.proxyHost>
+            <http.proxyPort>80</http.proxyPort>
+            <http.proxyUser>myProxyUser</http.proxyUser>
+            <http.proxyPassword>myProxyPass</http.proxyPassword>
+            -->
           </systemPropertyVariables>
         </configuration>
       </plugin>
