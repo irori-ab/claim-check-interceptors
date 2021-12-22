@@ -62,7 +62,7 @@ public class DeserializingClaimCheckConsumerInterceptor<K, V>
           LOG.trace("checked out claim check: ref={}", claimCheck.getReference());
           ConsumerRecord<K, V> claimCheckRecord =
               new ConsumerRecord<>(record.topic(), record.partition(), record.offset(),
-                  record.timestamp(), record.timestampType(), record.checksum(),
+                  record.timestamp(), record.timestampType(), null,
                   record.serializedKeySize(),
                   record.serializedKeySize(),
                   record.key(),
