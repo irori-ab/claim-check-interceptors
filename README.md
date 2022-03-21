@@ -13,7 +13,7 @@ Add the dependency:
 <dependency>
   <groupId>se.irori.kafka</groupId>
   <artifactId>claim-check-interceptors-azure</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.6.0</version>
 </dependency>
 ```
 
@@ -108,8 +108,6 @@ export AZURE_STORAGE_KEY=...
 # (c) create
 # (l) list
 
-# TODO: how to restrict to specific container
-
 az storage account generate-sas \
  --account-name claimcheckcitest \
  --permissions rcl \
@@ -118,28 +116,31 @@ az storage account generate-sas \
  --https-only \
  --expiry $(date -v +6m +%Y-%m-%d) | tr -d '"' > my-topic-sas-write.sastoken 
 
-az storage container generate-sas \
- --account-name claimcheckcitest \
- --permissions racwl \
- --name my-topic \
- --https-only \
- --expiry $(date -v +6m +%Y-%m-%d) | tr -d '"' > my-topic-sas-write.sastoken 
-
 # consumer: rl
 # (r) read
 # (l) list
 
-# read sas, +6 months expiry
-# TODO: how to restrict to specific container
-
-az storage account generate-sas \
+az storage container generate-sas \
  --account-name claimcheckcitest \
  --permissions rl \
- --services b \
- --resource-types co \
+ --name my-topic \
  --https-only \
  --expiry $(date -v +6m +%Y-%m-%d) | tr -d '"' > my-topic-sas-read.sastoken 
 ```
+
+Note: if you want to use the create container if not exists feature, then you need general storage account 
+write permission, not tied to a specific container, e.g.;
+```
+az storage account generate-sas \
+ --account-name claimcheckcitest \
+ --permissions rwlac \
+ --services b \
+ --resource-types co \
+ --https-only \
+ --expiry $(date -v +6m +%Y-%m-%d) | tr -d '"' > general-write.sastoken 
+```
+
+
 
 ## Set Blob expiry
 The following sets a Storage Account Lifecycle Management policy that will delete blobs after 14 days:

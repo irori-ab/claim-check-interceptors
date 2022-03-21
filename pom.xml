@@ -6,7 +6,7 @@
 
   <groupId>se.irori.kafka</groupId>
   <artifactId>claim-check-interceptors-parent</artifactId>
-  <version>0.5.0</version>
+  <version>0.6.0</version>
 
   <packaging>pom</packaging>
 

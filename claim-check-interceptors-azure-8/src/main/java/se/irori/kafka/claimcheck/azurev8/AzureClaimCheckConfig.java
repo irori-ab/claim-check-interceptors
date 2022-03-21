@@ -1,5 +1,6 @@
 package se.irori.kafka.claimcheck.azurev8;
 
+import static se.irori.kafka.claimcheck.azurev8.AzureClaimCheckConfig.Keys.AZURE_CREATE_CONTAINER_IF_NOT_EXISTS;
 import static se.irori.kafka.claimcheck.azurev8.AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_CONNECTION_STRING_CONFIG;
 import static se.irori.kafka.claimcheck.azurev8.AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_ENDPOINT_CONFIG;
 import static se.irori.kafka.claimcheck.azurev8.AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG;
@@ -42,6 +43,9 @@ public class AzureClaimCheckConfig extends AbstractConfig {
 
     base.define(AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG, ConfigDef.Type.STRING, null,
         ConfigDef.Importance.MEDIUM, "'path:...', 'env:..', 'value:...'");
+
+    base.define(AZURE_CREATE_CONTAINER_IF_NOT_EXISTS, ConfigDef.Type.BOOLEAN, false,
+        ConfigDef.Importance.MEDIUM, "TODO docs");
 
     return base;
   }
@@ -153,6 +157,9 @@ public class AzureClaimCheckConfig extends AbstractConfig {
 
     public static final String AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG
         = "azure.blob.storage.account.sastoken.from";
+
+    public static final String AZURE_CREATE_CONTAINER_IF_NOT_EXISTS
+        = "azure.blob.create.container.if.not.exists";
 
   }
 }

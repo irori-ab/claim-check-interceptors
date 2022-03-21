@@ -27,13 +27,15 @@ public class AzureBlobStorageClaimCheckBackend implements ClaimCheckBackend {
 
   private BlobServiceClient blobServiceClient;
 
+  private boolean createContainerIfNotExists = false;
+
   @Override
   public ClaimCheck checkIn(ProducerRecord<byte[], byte[]> largeRecord) {
     BlobContainerClient blobContainerClient =
         topicContainerClients.computeIfAbsent(largeRecord.topic(),
             t -> blobServiceClient.getBlobContainerClient(t));
 
-    if (!blobContainerClient.exists()) {
+    if (createContainerIfNotExists && !blobContainerClient.exists()) {
       blobContainerClient.create();
     }
 
@@ -86,6 +88,9 @@ public class AzureBlobStorageClaimCheckBackend implements ClaimCheckBackend {
 
     blobServiceClient = blobServiceClientBuilder
         .buildClient();
+
+    createContainerIfNotExists = config.getBoolean(
+        AzureClaimCheckConfig.Keys.AZURE_CREATE_CONTAINER_IF_NOT_EXISTS);
   }
 
 }

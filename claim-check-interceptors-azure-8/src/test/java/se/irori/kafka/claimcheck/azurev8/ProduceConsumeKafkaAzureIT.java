@@ -75,6 +75,8 @@ public class ProduceConsumeKafkaAzureIT extends AbstractClaimCheckIT {
     producerConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     producerConfig.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG,
         SerializingClaimCheckProducerInterceptor.class.getName());
+    producerConfig.put(AzureClaimCheckConfig.Keys.AZURE_CREATE_CONTAINER_IF_NOT_EXISTS,
+        true);
 
     consumerConfig = new HashMap<>();
     injectConfigFromSystemProperties(consumerConfig, azuriteContainer, "consumer.");
