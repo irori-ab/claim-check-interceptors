@@ -5,6 +5,9 @@ import java.util.stream.StreamSupport;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 
+/**
+ * Utility methods for Claim Check related Kafka headers.
+ */
 public class ClaimCheckUtils {
   /**
    * Check if record headers indicate the message is a Claim Check.
@@ -12,7 +15,7 @@ public class ClaimCheckUtils {
   public static boolean isClaimCheck(Headers headers) {
     return StreamSupport.stream(headers.spliterator(), false)
         .map(Header::key)
-        .anyMatch(SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK::equals);
+        .anyMatch(ClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK::equals);
   }
 
   /**
@@ -21,7 +24,8 @@ public class ClaimCheckUtils {
   public static boolean isClaimCheckError(Headers headers) {
     return StreamSupport.stream(headers.spliterator(), false)
         .map(Header::key)
-        .anyMatch(SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK_ERROR::equals);
+        .anyMatch(ClaimCheckProducerInterceptor
+            .HEADER_MESSAGE_CLAIM_CHECK_ERROR::equals);
   }
 
   /**
@@ -30,14 +34,12 @@ public class ClaimCheckUtils {
    * @param headers the Kafka message headers to process
    */
   public static byte[] getClaimCheckRefFromHeader(Headers headers) {
-    byte[] ret = null;
-    for (Header header : headers) {
-      if (SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK
-          .equals(header.key())) {
-        ret = header.value();
-      }
-    }
-    return ret;
+    return StreamSupport.stream(headers.spliterator(), false)
+        .filter(h ->
+            ClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK.equals(h.key()))
+        .findFirst()
+        .map(Header::value)
+        .orElse(null);
   }
 
   /**
@@ -48,13 +50,11 @@ public class ClaimCheckUtils {
    * @return the error stacktrace, or null if not found
    */
   public static String getClaimCheckErrorStackTraceFromHeader(Headers headers) {
-    String stackTrace = null;
-    for (Header header : headers) {
-      if (SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK_ERROR
-          .equals(header.key())) {
-        stackTrace = new String(header.value(), StandardCharsets.UTF_8);
-      }
-    }
-    return stackTrace;
+    return StreamSupport.stream(headers.spliterator(), false)
+        .filter(h -> ClaimCheckProducerInterceptor
+            .HEADER_MESSAGE_CLAIM_CHECK_ERROR.equals(h.key()))
+        .findFirst()
+        .map(h -> new String(h.value(), StandardCharsets.UTF_8))
+        .orElse(null);
   }
 }

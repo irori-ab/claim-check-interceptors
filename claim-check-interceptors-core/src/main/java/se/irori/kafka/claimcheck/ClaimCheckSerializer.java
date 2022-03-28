@@ -5,9 +5,15 @@ import org.apache.kafka.common.errors.KafkaStorageException;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Serializer;
 
-public class ClaimCheckWrappingSerializer<T> implements Serializer<T> {
+/**
+ * Value serializer handles Claim Check error propagation.
+ * <p />
+ * Wraps an underlying serializer, and assumes ClaimCheckProducerInterceptor
+ * is configured to set the appropriate headers to react to.
+ */
+public class ClaimCheckSerializer<T> implements Serializer<T> {
   private Serializer<T> valueSerializer;
-
+  private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
   /**
    * Configure this class.
@@ -41,10 +47,10 @@ public class ClaimCheckWrappingSerializer<T> implements Serializer<T> {
     if (ClaimCheckUtils.isClaimCheckError(headers)) {
       String error = ClaimCheckUtils.getClaimCheckErrorStackTraceFromHeader(headers);
 
-      throw new KafkaStorageException("Claim check interceptor error detected:\n" + error);
+      throw new KafkaStorageException("Claim check interceptor error:\n" + error);
     } else if (ClaimCheckUtils.isClaimCheck(headers)) {
-        // we need non-null value to trigger consumer serializer
-        return new byte[0];
+      // we need non-null value to trigger consumer serializer
+      return EMPTY_BYTE_ARRAY;
     } else {
       return valueSerializer.serialize(topic, headers, data);
     }

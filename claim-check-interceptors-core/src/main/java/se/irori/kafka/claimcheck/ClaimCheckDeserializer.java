@@ -4,14 +4,15 @@ import static se.irori.kafka.claimcheck.ClaimCheckUtils.getClaimCheckRefFromHead
 import static se.irori.kafka.claimcheck.ClaimCheckUtils.isClaimCheck;
 
 import java.util.Map;
+import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClaimCheckWrappingDeserializer<T> implements Deserializer<T> {
+public class ClaimCheckDeserializer<T> implements Deserializer<T> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ClaimCheckWrappingDeserializer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ClaimCheckDeserializer.class);
 
   private Deserializer<T> valueDeserializer;
   private ClaimCheckBackend claimCheckBackend;
@@ -27,10 +28,8 @@ public class ClaimCheckWrappingDeserializer<T> implements Deserializer<T> {
   public void configure(Map<String, ?> configs, boolean isKey) {
     BaseClaimCheckConfig baseClaimCheckConfig = BaseClaimCheckConfig.validatedConfig(configs);
     if (isKey) {
-      throw new IllegalStateException("Cannot wrap key serializer");
+      throw new ConfigException("Cannot wrap key serializer");
     }
-
-    // TODO: validate not using CC interceptor?
 
     this.valueDeserializer = baseClaimCheckConfig.getConfiguredInstance(
         BaseClaimCheckConfig.Keys.CLAIMCHECK_WRAPPED_VALUE_DESERIALIZER_CLASS, Deserializer.class);

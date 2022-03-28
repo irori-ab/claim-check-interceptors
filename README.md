@@ -30,19 +30,21 @@ config.put(
     AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG,
     "file:/path/to/textfile/with/sas.token");   
 
-// producer
-// any serializer
-config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+// producer (interceptor + wrapping serializer)
+// any serializer as the wrapped serializer
+config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ClaimCheckSerializer.class);
 config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 config.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG,
-    SerializingClaimCheckProducerInterceptor.class.getName());
+    ClaimCheckProducerInterceptor.class.getName());
+config.put(BaseClaimCheckConfig.Keys.CLAIMCHECK_WRAPPED_VALUE_SERIALIZER_CLASS,
+        StringSerializer.class);
     
-// consumer 
-// any deserializer
-config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+// consumer (wrapping deserializer)
+// any deserializer as the wrapped serializer
+config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ClaimCheckDeserializer.class);
 config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-config.put(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG,
-    DeserializingClaimCheckConsumerInterceptor.class.getName());
+config.put(BaseClaimCheckConfig.Keys.CLAIMCHECK_WRAPPED_VALUE_DESERIALIZER_CLASS,
+        StringDeserializer.class);
 ```
 
 ## Building 
@@ -101,21 +103,24 @@ az storage account create \
 az storage account keys list -g claimcheckrg -n claimcheckcitest --query '[0].value'
 export AZURE_STORAGE_KEY=...
     
-# write sas, +6 months expiry
+# for container specific sas tokens the container (topic) needs to be created
+az storage container create --name my-topic --account-name claimcheckcitest --resource-group claimcheckrg
+    
+# container (topic) restricted write sas, +6 months expiry
 
 # Producer: rcl
 # (r) read
 # (c) create
 # (l) list
 
-az storage account generate-sas \
+az storage container generate-sas \
  --account-name claimcheckcitest \
  --permissions rcl \
- --services b \
- --resource-types co \
+ --name my-topic \
  --https-only \
  --expiry $(date -v +6m +%Y-%m-%d) | tr -d '"' > my-topic-sas-write.sastoken 
 
+# container (topic) restricted read sas, +6 months expiry
 # consumer: rl
 # (r) read
 # (l) list
@@ -139,8 +144,6 @@ az storage account generate-sas \
  --https-only \
  --expiry $(date -v +6m +%Y-%m-%d) | tr -d '"' > general-write.sastoken 
 ```
-
-
 
 ## Set Blob expiry
 The following sets a Storage Account Lifecycle Management policy that will delete blobs after 14 days:

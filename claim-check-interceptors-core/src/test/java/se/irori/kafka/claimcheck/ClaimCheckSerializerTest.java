@@ -10,12 +10,12 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ClaimCheckWrappingSerializerTest {
-  ClaimCheckWrappingSerializer<String> unit;
+public class ClaimCheckSerializerTest {
+  ClaimCheckSerializer<String> unit;
 
   @Before
   public void setup() {
-    unit = new ClaimCheckWrappingSerializer<>();
+    unit = new ClaimCheckSerializer<>();
     HashMap<String, Object> config = new HashMap<>();
 
     config.put(BaseClaimCheckConfig.Keys.CLAIMCHECK_WRAPPED_VALUE_SERIALIZER_CLASS,
@@ -43,7 +43,7 @@ public class ClaimCheckWrappingSerializerTest {
   public void serializeClaimCheck() {
     // GIVEN claim check header
     Headers headers = new RecordHeaders().add(
-        SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK,
+        ClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK,
         "https://my.claim.check/reference".getBytes(StandardCharsets.UTF_8));
     String payload = null;
 
@@ -58,7 +58,7 @@ public class ClaimCheckWrappingSerializerTest {
   public void serializeClaimCheckError() {
     // GIVEN claim check header
     Headers headers = new RecordHeaders().add(
-        SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK_ERROR,
+        ClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK_ERROR,
         "My stack trace".getBytes(StandardCharsets.UTF_8));
     String payload = "myPayload";
 

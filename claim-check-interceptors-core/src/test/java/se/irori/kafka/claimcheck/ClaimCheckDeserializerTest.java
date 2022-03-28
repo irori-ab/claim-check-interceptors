@@ -10,12 +10,12 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ClaimCheckWrappingDeserializerTest {
-  ClaimCheckWrappingDeserializer<String> unit;
+public class ClaimCheckDeserializerTest {
+  ClaimCheckDeserializer<String> unit;
 
   @Before
   public void setup() {
-    unit = new ClaimCheckWrappingDeserializer<>();
+    unit = new ClaimCheckDeserializer<>();
     FakeClaimCheckBackend.reset();
 
     HashMap<String, Object> config = new HashMap<>();
@@ -46,7 +46,7 @@ public class ClaimCheckWrappingDeserializerTest {
   public void deserializeClaimCheck() {
     // GIVEN claim check header
     Headers headers = new RecordHeaders()
-        .add(SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK,
+        .add(ClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK,
             "https://my.claimcheck.com/ref".getBytes(StandardCharsets.UTF_8));
 
     // WHEN deserializing
@@ -62,7 +62,7 @@ public class ClaimCheckWrappingDeserializerTest {
     // GIVEN claim check header, Fake backend set to throw error
     FakeClaimCheckBackend.setErrorModeOn(true);
     Headers headers = new RecordHeaders()
-        .add(SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK,
+        .add(ClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK,
             "https://my.claimcheck.com/ref".getBytes(StandardCharsets.UTF_8));
 
     // WHEN deserializing

@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 import java.util.HashMap;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,28 +14,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Unit test the SerializingClaimCheckProducerInterceptor with String datatypes.
+ * Unit test the ClaimCheckProducerInterceptor with String datatypes.
  */
-public class StringSerializingClaimCheckProducerInterceptorTest {
+public class StringClaimCheckProducerInterceptorTest {
 
   private static final Logger LOGGER =
-      LoggerFactory.getLogger(StringSerializingClaimCheckProducerInterceptorTest.class);
+      LoggerFactory.getLogger(StringClaimCheckProducerInterceptorTest.class);
 
-  SerializingClaimCheckProducerInterceptor<String,String> unit;
+  ClaimCheckProducerInterceptor<String,String> unit;
 
   @Before
   public void setup() {
-    unit = new SerializingClaimCheckProducerInterceptor<>();
+    unit = new ClaimCheckProducerInterceptor<>();
     HashMap<String, Object> config = new HashMap<>();
     config.put(
-        BaseClaimCheckConfig.Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_CONFIG, 200);
+        BaseClaimCheckConfig.Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_CONFIG,
+        200);
 
     FakeClaimCheckBackend.reset();
     config.put(
         BaseClaimCheckConfig.Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, FakeClaimCheckBackend.class);
 
     config.put(
-            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ClaimCheckSerializer.class);
+    config.put(BaseClaimCheckConfig.Keys.CLAIMCHECK_WRAPPED_VALUE_SERIALIZER_CLASS,
+        StringSerializer.class);
+
     config.put(
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     unit.configure(config);
@@ -120,7 +123,7 @@ public class StringSerializingClaimCheckProducerInterceptorTest {
         producerRecord.headers());
     assertTrue(stackTrace.contains("RuntimeException"));
     assertTrue(stackTrace.contains("FakeClaimCheckBackend"));
-    assertTrue(stackTrace.contains("SerializingClaimCheckProducerInterceptor"));
+    assertTrue(stackTrace.contains("ClaimCheckProducerInterceptor"));
     assertTrue(stackTrace.contains("Some fake backend exception"));
 
   }
