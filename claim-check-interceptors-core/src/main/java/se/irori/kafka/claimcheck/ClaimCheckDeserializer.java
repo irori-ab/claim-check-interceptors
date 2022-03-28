@@ -28,7 +28,7 @@ public class ClaimCheckDeserializer<T> implements Deserializer<T> {
   public void configure(Map<String, ?> configs, boolean isKey) {
     BaseClaimCheckConfig baseClaimCheckConfig = BaseClaimCheckConfig.validatedConfig(configs);
     if (isKey) {
-      throw new ConfigException("Cannot wrap key serializer");
+      throw new ConfigException("Should not be used to wrap key serializer, only value");
     }
 
     this.valueDeserializer = baseClaimCheckConfig.getConfiguredInstance(
