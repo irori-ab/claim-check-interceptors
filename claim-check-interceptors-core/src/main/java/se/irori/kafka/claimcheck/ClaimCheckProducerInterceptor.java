@@ -20,10 +20,12 @@ import se.irori.kafka.claimcheck.BaseClaimCheckConfig.Keys;
 
 /**
  * Implementation of the ClaimCheck pattern producer side. Assumes you have also configured
+ * the {@link ClaimCheckSerializer} to catch any propagated errors.
  *
  * <p />
  * If the message is above the configured limit, a claim check will be published
- * in the configured backend.
+ * in the configured backend, and a reference stored as a header of the message
+ * published in Kafka.
  */
 public class ClaimCheckProducerInterceptor<K, V>
     implements ProducerInterceptor<K, V> {
