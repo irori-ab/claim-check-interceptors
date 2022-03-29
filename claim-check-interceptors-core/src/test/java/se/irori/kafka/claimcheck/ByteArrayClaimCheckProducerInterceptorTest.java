@@ -12,26 +12,28 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit test the SerializingClaimCheckProducerInterceptor with byte[] datatypes.
+ * Unit test the ClaimCheckProducerInterceptor with byte[] datatypes.
  */
-public class ByteArraySerializingClaimCheckProducerInterceptorTest {
+public class ByteArrayClaimCheckProducerInterceptorTest {
 
-  SerializingClaimCheckProducerInterceptor<byte[],byte[]> unit;
+  ClaimCheckProducerInterceptor<byte[],byte[]> unit;
 
   @Before
   public void setup() {
-    unit = new SerializingClaimCheckProducerInterceptor<>();
+    unit = new ClaimCheckProducerInterceptor<>();
 
     HashMap<String, Object> config = new HashMap<>();
     config.put(
         BaseClaimCheckConfig.Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_CONFIG,
         100); // actual message is payload + some protocol overhead
     config.put(
-            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
+            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ClaimCheckSerializer.class);
+    config.put(BaseClaimCheckConfig.Keys.CLAIMCHECK_WRAPPED_VALUE_SERIALIZER_CLASS,
+        ByteArraySerializer.class);
     config.put(
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
 
-    FakeClaimCheckBackend.resetCounter();
+    FakeClaimCheckBackend.reset();
     config.put(
         BaseClaimCheckConfig.Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, FakeClaimCheckBackend.class);
 
@@ -50,8 +52,8 @@ public class ByteArraySerializingClaimCheckProducerInterceptorTest {
 
     Header headerResult = result.headers().iterator().next();
     // THEN result should be a claim check reference to the 0 counter value from the dummy impl
-    assertEquals("0", new ClaimCheck(headerResult.value()).getReference());
-    assertEquals(SerializingClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK,
+    assertEquals("1", new ClaimCheck(headerResult.value()).getReference());
+    assertEquals(ClaimCheckProducerInterceptor.HEADER_MESSAGE_CLAIM_CHECK,
         headerResult.key());
     assertEquals(1, FakeClaimCheckBackend.getCount());
   }

@@ -1,4 +1,4 @@
-package se.irori.kafka.claimcheck.azure;
+package se.irori.kafka.claimcheck.azurev8;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -26,8 +26,9 @@ import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 import se.irori.kafka.claimcheck.BaseClaimCheckConfig;
-import se.irori.kafka.claimcheck.DeserializingClaimCheckConsumerInterceptor;
-import se.irori.kafka.claimcheck.SerializingClaimCheckProducerInterceptor;
+import se.irori.kafka.claimcheck.ClaimCheckDeserializer;
+import se.irori.kafka.claimcheck.ClaimCheckSerializer;
+import se.irori.kafka.claimcheck.ClaimCheckProducerInterceptor;
 import se.irori.kafka.claimcheck.TestUtils;
 
 /**
@@ -67,10 +68,15 @@ public class ProduceConsumeKafkaAzureIT extends AbstractClaimCheckIT {
     producerConfig.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
         kafkaContainer.getBootstrapServers());
 
-    producerConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+    producerConfig.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+        ClaimCheckSerializer.class);
+    producerConfig.put(BaseClaimCheckConfig.Keys.CLAIMCHECK_WRAPPED_VALUE_SERIALIZER_CLASS,
+        StringSerializer.class);
     producerConfig.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
     producerConfig.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG,
-        SerializingClaimCheckProducerInterceptor.class.getName());
+        ClaimCheckProducerInterceptor.class.getName());
+    producerConfig.put(AzureClaimCheckConfig.Keys.AZURE_CREATE_CONTAINER_IF_NOT_EXISTS,
+        true);
 
     consumerConfig = new HashMap<>();
     injectConfigFromSystemProperties(consumerConfig, azuriteContainer, "consumer.");
@@ -79,12 +85,12 @@ public class ProduceConsumeKafkaAzureIT extends AbstractClaimCheckIT {
     consumerConfig.putIfAbsent(
         BaseClaimCheckConfig.Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG,
         AzureBlobStorageClaimCheckBackendV8.class);
-    consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ClaimCheckDeserializer.class);
+    consumerConfig.put(BaseClaimCheckConfig.Keys.CLAIMCHECK_WRAPPED_VALUE_DESERIALIZER_CLASS,
+        StringDeserializer.class);
     consumerConfig.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
     consumerConfig.put(ConsumerConfig.GROUP_ID_CONFIG, "my-group");
-    consumerConfig.put(ConsumerConfig.INTERCEPTOR_CLASSES_CONFIG,
-        DeserializingClaimCheckConsumerInterceptor.class.getName());
 
     producer = new KafkaProducer<>(producerConfig);
     consumer = new KafkaConsumer<>(consumerConfig);

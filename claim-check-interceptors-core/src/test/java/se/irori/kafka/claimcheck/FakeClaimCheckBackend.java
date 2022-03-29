@@ -11,10 +11,17 @@ public class FakeClaimCheckBackend
     implements ClaimCheckBackend {
 
   // note: not thread safe (for basic test usage only)
+  /** the number of times a message check in has been attempted since reset */
   private static int counter = 0;
 
-  public static void resetCounter() {
+  private static boolean errorModeOn = false;
+
+  /**
+   * reset the counter and turn off error mode if set
+   */
+  public static void reset() {
     counter = 0;
+    errorModeOn = false;
   }
 
   public static int getCount() {
@@ -23,17 +30,32 @@ public class FakeClaimCheckBackend
 
   @Override
   public ClaimCheck checkIn(ProducerRecord<byte[], byte[]> largeRecord) {
-    return new ClaimCheck((counter++) + "");
+    counter += 1;
+    if (errorModeOn) {
+      throw new RuntimeException("Some fake backend exception");
+    }
+    return new ClaimCheck("" + counter);
   }
 
   @Override
   public byte[] checkOut(ClaimCheck claimCheck) {
     String counterString = (counter++)+"";
+    if (errorModeOn) {
+      throw new RuntimeException("Some fake backend exception");
+    }
     return counterString.getBytes(StandardCharsets.UTF_8);
   }
 
   @Override
   public void configure(Map<String, ?> configs) {
 
+  }
+
+  public static boolean isErrorModeOn() {
+    return errorModeOn;
+  }
+
+  public static void setErrorModeOn(boolean errorModeOn) {
+    FakeClaimCheckBackend.errorModeOn = errorModeOn;
   }
 }

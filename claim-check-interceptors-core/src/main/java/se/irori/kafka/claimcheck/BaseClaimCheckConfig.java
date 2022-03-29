@@ -1,5 +1,7 @@
 package se.irori.kafka.claimcheck;
 
+import static org.apache.kafka.common.config.ConfigDef.NO_DEFAULT_VALUE;
+
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -42,8 +44,17 @@ public class BaseClaimCheckConfig extends AbstractConfig {
             ConfigDef.Importance.MEDIUM, "TODO docs");
 
     base.define(Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, ConfigDef.Type.CLASS,
+        NO_DEFAULT_VALUE,
+        ConfigDef.Importance.MEDIUM, "TODO docs");
+
+    base.define(Keys.CLAIMCHECK_WRAPPED_VALUE_DESERIALIZER_CLASS, ConfigDef.Type.CLASS,
         null,
         ConfigDef.Importance.MEDIUM, "TODO docs");
+
+    base.define(Keys.CLAIMCHECK_WRAPPED_VALUE_SERIALIZER_CLASS, ConfigDef.Type.CLASS,
+        null,
+        ConfigDef.Importance.MEDIUM, "TODO docs");
+
 
     return base;
   }
@@ -88,6 +99,14 @@ public class BaseClaimCheckConfig extends AbstractConfig {
 
     public static final String CLAIMCHECK_BACKEND_CLASS_CONFIG
         = "claimcheck.backend.class";
+
+    public static final String CLAIMCHECK_WRAPPED_VALUE_DESERIALIZER_CLASS
+        = ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG
+          + ".wrapped.deserializer";
+
+    public static final String CLAIMCHECK_WRAPPED_VALUE_SERIALIZER_CLASS
+        = ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG
+        + ".wrapped.serializer";
   }
 
 }

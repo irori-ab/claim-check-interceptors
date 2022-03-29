@@ -1,11 +1,11 @@
-package se.irori.kafka.claimcheck.azure;
+package se.irori.kafka.claimcheck.azurev8;
 
 import static org.junit.Assert.*;
 
 import java.util.HashMap;
 import org.apache.kafka.common.config.ConfigException;
 import org.junit.Test;
-import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys;
+import se.irori.kafka.claimcheck.azurev8.AzureClaimCheckConfig.Keys;
 
 /**
  * Unit test AzureClaimCheckConfig for valid config combinations.

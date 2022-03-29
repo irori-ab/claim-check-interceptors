@@ -1,4 +1,4 @@
-package se.irori.kafka.claimcheck.azure;
+package se.irori.kafka.claimcheck.azurev8;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageException;
@@ -31,15 +31,19 @@ public class AzureBlobStorageClaimCheckBackendV8 implements ClaimCheckBackend {
 
   private CloudBlobClient blobServiceClient;
 
+  private boolean createContainerIfNotExists = false;
+
   @Override
   public ClaimCheck checkIn(ProducerRecord<byte[], byte[]> largeRecord) {
     CloudBlobContainer blobContainerClient =
         getCloudBlobContainer(largeRecord);
 
-    try {
-      blobContainerClient.createIfNotExists();
-    } catch (StorageException e) {
-      throw new KafkaStorageException(e);
+    if (createContainerIfNotExists) {
+      try {
+        blobContainerClient.createIfNotExists();
+      } catch (StorageException e) {
+        throw new KafkaStorageException(e);
+      }
     }
 
     String blobName = UUID.randomUUID().toString();
@@ -136,5 +140,7 @@ public class AzureBlobStorageClaimCheckBackendV8 implements ClaimCheckBackend {
 
     blobServiceClient = cloudStorageAccount.createCloudBlobClient();
 
+    createContainerIfNotExists = config.getBoolean(
+        AzureClaimCheckConfig.Keys.AZURE_CREATE_CONTAINER_IF_NOT_EXISTS);
   }
 }

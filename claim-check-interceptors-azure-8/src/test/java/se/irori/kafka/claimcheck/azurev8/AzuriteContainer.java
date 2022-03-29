@@ -1,4 +1,4 @@
-package se.irori.kafka.claimcheck.azure;
+package se.irori.kafka.claimcheck.azurev8;
 
 import org.testcontainers.containers.GenericContainer;
 
