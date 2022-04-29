@@ -19,7 +19,7 @@ import se.irori.kafka.claimcheck.ClaimCheckBackend;
 
 /**
  * Implementation of the ProducerInterceptor backed by Azure Blob Storage using SDK version v8.
- * <p/>
+ * <p>
  * This backend is needed to support a wider range of runtime environments, e.g. Spring Boot
  * v2.1 and v2.2. It seems newer versions of the SDK tend to cause issues with "projectreactor.io"
  * dependencies, unless running very specific combinations.

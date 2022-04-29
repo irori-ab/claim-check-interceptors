@@ -7,7 +7,7 @@ import org.apache.kafka.common.serialization.Serializer;
 
 /**
  * Value serializer handles Claim Check error propagation.
- * <p />
+ * <p>
  * Wraps an underlying serializer, and assumes ClaimCheckProducerInterceptor
  * is configured to set the appropriate headers to react to.
  */
