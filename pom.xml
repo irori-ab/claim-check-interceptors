@@ -71,7 +71,7 @@
 
   <scm>
     <connection>scm:git:git://github.com/irori-ab/claim-check-interceptors.git</connection>
-    <developerConnection>scm:git:ssh://github.com/irori-ab/claim-check-interceptors.git</developerConnection>
+    <developerConnection>scm:git:ssh://git@github.com/irori-ab/claim-check-interceptors.git</developerConnection>
     <url>http://github.com/irori-ab/claim-check-interceptors/tree/main</url>
   </scm>
 
