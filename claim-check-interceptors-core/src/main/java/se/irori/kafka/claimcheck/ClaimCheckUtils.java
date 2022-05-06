@@ -10,7 +10,7 @@ import org.apache.kafka.common.header.Headers;
  */
 public class ClaimCheckUtils {
   /**
-   * Check if record headers indicate the message is a Claim Check.
+   * @return true if record headers indicate the message is a Claim Check.
    */
   public static boolean isClaimCheck(Headers headers) {
     return StreamSupport.stream(headers.spliterator(), false)
@@ -20,6 +20,8 @@ public class ClaimCheckUtils {
 
   /**
    * Check if record headers indicate the message has a Claim Check processing error.
+   *
+   * @param headers message headers
    */
   public static boolean isClaimCheckError(Headers headers) {
     return StreamSupport.stream(headers.spliterator(), false)

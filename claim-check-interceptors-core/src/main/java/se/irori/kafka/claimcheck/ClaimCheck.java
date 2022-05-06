@@ -4,7 +4,7 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Represents a Claim Check in the claim check pattern.
- * <p/>
+ * <p>
  * https://www.enterpriseintegrationpatterns.com/patterns/messaging/StoreInLibrary.html
  */
 public class ClaimCheck {

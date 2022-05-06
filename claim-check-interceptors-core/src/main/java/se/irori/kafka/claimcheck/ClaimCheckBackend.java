@@ -11,7 +11,7 @@ public interface ClaimCheckBackend extends Configurable  {
 
   /**
    * Check in the record in the underlying storage system.
-   * <p/>
+   * <p>
    * This means uploading the payload, collecting some reference (claim check) which
    * can later be used to retrieved the payload.
    *
