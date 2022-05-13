@@ -80,7 +80,10 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
 
-    <lib.testcontainers.version>1.15.3</lib.testcontainers.version>
+    <lib.kafka.version>3.1.0</lib.kafka.version>
+    <lib.testcontainers.version>1.17.1</lib.testcontainers.version>
+    <lib.slf4j.version>1.7.36</lib.slf4j.version>
+    <lib.junit.version>4.13.2</lib.junit.version>
   </properties>
 
   <dependencyManagement>
@@ -88,12 +91,12 @@
       <dependency>
         <groupId>org.apache.kafka</groupId>
         <artifactId>kafka-clients</artifactId>
-        <version>2.8.0</version>
+        <version>${lib.kafka.version}</version>
       </dependency>
       <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
-        <version>4.11</version>
+        <version>${lib.junit.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -110,8 +113,13 @@
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${lib.slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
         <artifactId>slf4j-simple</artifactId>
-        <version>1.6.1</version>
+        <version>${lib.slf4j.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>

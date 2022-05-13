@@ -20,7 +20,7 @@
     <producer.azure.blob.storage.account.sastoken.from />
     <consumer.azure.blob.storage.account.endpoint />
     <consumer.azure.blob.storage.account.sastoken.from />
-    <azure-sdk.version>12.12.0</azure-sdk.version>
+    <azure-sdk.version>12.16.0</azure-sdk.version>
   </properties>
 
   <dependencies>
@@ -55,7 +55,6 @@
       <artifactId>testcontainers</artifactId>
       <scope>test</scope>
     </dependency>
-
 
     <dependency>
       <groupId>org.testcontainers</groupId>
