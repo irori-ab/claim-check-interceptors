@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+
+    <Match>
+        <!-- we don't deal with non ascii strings for toUpperCase -->
+        <Bug pattern="DM_CONVERT_CASE" />
+    </Match>
+    <Match>
+        <!-- we know configure is called before serialize -->
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
+        <Class name="~se\.irori\.kafka\.claimcheck\.ClaimCheckSerializer" />
+        <Class name="~se\.irori\.kafka\.claimcheck\.azure\.AzureBlobStorageClaimCheckBackend" />
+        <Class name="~se\.irori\.kafka\.claimcheck\.azure\.AzureBlobStorageClaimCheckBackendV8" />
+    </Match>
+</FindBugsFilter>

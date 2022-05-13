@@ -32,8 +32,6 @@ public class AzureClaimCheckConfig extends AbstractConfig {
     VALUE, ENV, FILE
   }
 
-  private SasTokenFromMechanism sasTokenFromMechanism;
-
   private static ConfigDef buildConfigDef(ConfigDef base) {
     base.define(AZURE_STORAGE_ACCOUNT_ENDPOINT_CONFIG, ConfigDef.Type.STRING, null,
         ConfigDef.Importance.MEDIUM, "TODO docs");

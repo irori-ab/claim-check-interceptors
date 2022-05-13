@@ -190,6 +190,36 @@
           </executions>
         </plugin>
         <plugin>
+          <groupId>com.github.spotbugs</groupId>
+          <artifactId>spotbugs-maven-plugin</artifactId>
+          <version>4.5.3.0</version><dependencies>
+          <!-- overwrite dependency on spotbugs if you want to specify the version of˓→spotbugs -->
+          <dependency>
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs</artifactId>
+            <version>4.5.3</version>
+          </dependency></dependencies>
+          <configuration>
+            <effort>Max</effort>
+            <!-- Reports all bugs (other values are medium and max) -->
+            <threshold>Low</threshold>
+            <!-- Produces XML report -->
+            <xmlOutput>true</xmlOutput>
+            <!-- Configures the directory in which the XML report is created -->
+            <spotbugsXmlOutputDirectory>${project.build.directory}/spotbugs</spotbugsXmlOutputDirectory>
+            <excludeFilterFile>${project.basedir}/../.spotbugs/spotbugs-exclude.xml</excludeFilterFile>
+          </configuration>
+          <executions>
+            <execution>
+              <id>validate</id>
+              <phase>validate</phase>
+              <goals>
+                <goal>check</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
           <version>3.0.0-M5</version>
@@ -249,6 +279,10 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>
