@@ -11,12 +11,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - fix: bump dependencies (Kafka 3.1.0, Azure )
 - docs: generate docs from ConfigDefs, add proper config doc strings
 - docs: add back simpler diagram, refer to detailed one in link
+- docs: add some missed javadocs
   
-## [0.7.0] - 2022-03-29
-### Added
-- feat: BREAKING CHANGE add ClaimCheck(De)serializers that wrap actual (de)serializers for better error handling.
-  Require that `ClaimCheckSerializer` is being used with `ClaimCheckProducerInterceptor`.
-- docs: add changelog
+## [0.7.0] - 2022-05-06
+### Changed
+- ci: maven profile to release to Maven central (sign, javadocs, sources)
+- docs: fix some javadocs formatting so that it generates without error
 
 ## [0.6.0] - 2022-03-29
 ### Added
