@@ -4,6 +4,8 @@ Library implementing the Claim Check pattern for use with Kafka and Azure Blob S
 ## Overview design
 ![Claim check interceptor design diagram](/docs/claim-check-blob.png)
 
+[Detailed component diagram](/docs/claim-check-blob-detailed.png)
+
 ## Usage
 Example usage for the `claim-check-interceptors-azure` (Azure SDK v12) backend. See also the 
 [Note about Azure SDK versions](claim-check-interceptors-azure).
