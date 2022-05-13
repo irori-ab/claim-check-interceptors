@@ -3,6 +3,7 @@ package se.irori.kafka.claimcheck.azure;
 import static org.junit.Assert.*;
 
 import java.util.HashMap;
+import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigException;
 import org.junit.Test;
 import se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys;
@@ -78,5 +79,17 @@ public class AzureClaimCheckConfigTest {
     unit = AzureClaimCheckConfig.validatedConfig(config);
   }
 
+  @Test
+  public void generateDocs() {
+    ConfigDef configDef = AzureClaimCheckConfig.buildConfigDef(new ConfigDef());
+    // RST / markdown hack
+    String rst = configDef.toEnrichedRst().replace("``", "`");
+
+    System.out.println("-----");
+    System.out.println(rst);
+    System.out.println("-----");
+
+    // RST output seems to work fine as markdown
+  }
 
 }

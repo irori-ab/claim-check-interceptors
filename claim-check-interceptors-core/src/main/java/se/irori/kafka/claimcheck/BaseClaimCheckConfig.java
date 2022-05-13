@@ -21,40 +21,69 @@ public class BaseClaimCheckConfig extends AbstractConfig {
   public static final int
       CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_DEFAULT = 1048576 - 512;
 
-  private static ConfigDef buildConfigDef(ConfigDef base) {
+  public static final String CHECKIN_SIZE_OVER = "The the byte limit where Kafka record batches"
+      + " above this size are checked in using the Claim Check backend. *Note*: this applies"
+      + " to the uncompressed message batch size. If you want to optimize for more messages "
+      + " not being checked in when compression is used, you will need to experiment with "
+      + " compression ratios for your specific flow, and then increase this config.";
+
+  public static final String BACKEND_DOCS = "The fully qualified name of the backend "
+      + "implementation. E.g. `se.irori.kafka.claimcheck.azure.AzureBlobStorageClaimCheckBackend`";
+
+  public static final String WRAPPED_DESERIALIZER_DOCS = "Set to the normal Kafka Consumer de-serializer"
+      + " that would have been used before enabling Claim Check interceptors on the flow.";
+
+  public static final String WRAPPED_SERIALIZER_DOCS = "Set to the normal Kafka Producer serializer"
+      + " that would have been used before enabling Claim Check interceptors on the flow.";
+
+  public static final String VALUE_SERIALIZER_DOCS = "Set to"
+      + " `se.irori.kafka.claimcheck.ClaimCheckSerializer` for the Producer in a Claim Check"
+      + " enabled flow.";
+
+  public static final String INTERCEPTOR_CLASSES_DOCS = "Set to"
+      + " `se.irori.kafka.claimcheck.ClaimCheckProducerInterceptor` for the Producer in a Claim Check"
+      + " enabled flow.";
+
+  public static final String DESERIALIZER_DOCS = "Set to"
+      + " `se.irori.kafka.claimcheck.ClaimCheckDeserializer` for the Consumer in a Claim Check"
+      + " enabled flow.";
+
+  public static final String KEY_SERIALIZER_DOCS = "Standard Kafka key.serializer option. Used "
+      + " for the calculation of message size to determine if it should be checked in.";
+
+  static ConfigDef buildConfigDef(ConfigDef base) {
     base.define(Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_CONFIG,
         ConfigDef.Type.LONG,
         CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_DEFAULT,
-        ConfigDef.Importance.MEDIUM, "TODO docs");
+        ConfigDef.Importance.MEDIUM, CHECKIN_SIZE_OVER);
 
     base.define(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ConfigDef.Type.CLASS,
             null,
-            ConfigDef.Importance.MEDIUM, "TODO docs");
-
-    base.define(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, ConfigDef.Type.CLASS,
-            null,
-            ConfigDef.Importance.MEDIUM, "TODO docs");
-
-    base.define(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ConfigDef.Type.CLASS,
-            null,
-            ConfigDef.Importance.MEDIUM, "TODO docs");
+            ConfigDef.Importance.MEDIUM, VALUE_SERIALIZER_DOCS);
 
     base.define(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ConfigDef.Type.CLASS,
             null,
-            ConfigDef.Importance.MEDIUM, "TODO docs");
+            ConfigDef.Importance.MEDIUM, DESERIALIZER_DOCS);
+
+    base.define(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, ConfigDef.Type.LIST,
+        null,
+        ConfigDef.Importance.MEDIUM, INTERCEPTOR_CLASSES_DOCS);
 
     base.define(Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, ConfigDef.Type.CLASS,
         NO_DEFAULT_VALUE,
-        ConfigDef.Importance.MEDIUM, "TODO docs");
+        ConfigDef.Importance.MEDIUM, BACKEND_DOCS);
 
     base.define(Keys.CLAIMCHECK_WRAPPED_VALUE_DESERIALIZER_CLASS, ConfigDef.Type.CLASS,
         null,
-        ConfigDef.Importance.MEDIUM, "TODO docs");
+        ConfigDef.Importance.MEDIUM, WRAPPED_DESERIALIZER_DOCS);
 
     base.define(Keys.CLAIMCHECK_WRAPPED_VALUE_SERIALIZER_CLASS, ConfigDef.Type.CLASS,
         null,
-        ConfigDef.Importance.MEDIUM, "TODO docs");
+        ConfigDef.Importance.MEDIUM, WRAPPED_SERIALIZER_DOCS);
 
+    base.define(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, ConfigDef.Type.CLASS,
+        null,
+        ConfigDef.Importance.MEDIUM, KEY_SERIALIZER_DOCS);
 
     return base;
   }

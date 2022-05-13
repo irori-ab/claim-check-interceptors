@@ -13,7 +13,7 @@ Add the dependency:
 <dependency>
   <groupId>se.irori.kafka</groupId>
   <artifactId>claim-check-interceptors-azure</artifactId>
-  <version>0.6.0</version>
+  <version>0.7.1-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -46,6 +46,67 @@ config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.clas
 config.put(BaseClaimCheckConfig.Keys.CLAIMCHECK_WRAPPED_VALUE_DESERIALIZER_CLASS,
         StringDeserializer.class);
 ```
+
+## Config reference
+
+`claimcheck.backend.class`
+The fully qualified name of the backend implementation. E.g. `se.irori.kafka.claimcheck.azure.AzureBlobStorageClaimCheckBackend`
+
+* Type: class
+* Importance: medium
+
+`claimcheck.checkin.uncompressed-batch-size.over.bytes`
+The the byte limit where Kafka record batches above this size are checked in using the Claim Check backend. *Note*: this applies to the uncompressed message batch size. If you want to optimize for more messages  not being checked in when compression is used, you will need to experiment with  compression ratios for your specific flow, and then increase this config.
+
+* Type: long
+* Default: 1048064
+* Importance: medium
+
+`interceptor.classes`
+Set to `se.irori.kafka.claimcheck.ClaimCheckProducerInterceptor` for the Producer in a Claim Check enabled flow.
+
+* Type: list
+* Default: null
+* Importance: medium
+
+`key.serializer`
+Standard Kafka key.serializer option. Used  for the calculation of message size to determine if it should be checked in.
+
+* Type: class
+* Default: null
+* Importance: medium
+
+`value.deserializer`
+Set to `se.irori.kafka.claimcheck.ClaimCheckDeserializer` for the Consumer in a Claim Check enabled flow.
+
+* Type: class
+* Default: null
+* Importance: medium
+
+`value.deserializer.wrapped.deserializer`
+Set to the normal Kafka Consumer de-serializer that would have been used before enabling Claim Check interceptors on the flow.
+
+* Type: class
+* Default: null
+* Importance: medium
+
+`value.serializer`
+Set to `se.irori.kafka.claimcheck.ClaimCheckSerializer` for the Producer in a Claim Check enabled flow.
+
+* Type: class
+* Default: null
+* Importance: medium
+
+`value.serializer.wrapped.serializer`
+Set to the normal Kafka Producer serializer that would have been used before enabling Claim Check interceptors on the flow.
+
+* Type: class
+* Default: null
+* Importance: medium
+
+See additional config reference per backend:
+* [Azure v12 backend](claim-check-interceptors-azure/README.md)
+* [Azure v8 backend](claim-check-interceptors-azure-8/README.md)
 
 ## Building 
 
