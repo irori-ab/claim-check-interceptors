@@ -30,8 +30,9 @@ public class BaseClaimCheckConfig extends AbstractConfig {
   public static final String BACKEND_DOCS = "The fully qualified name of the backend "
       + "implementation. E.g. `se.irori.kafka.claimcheck.azure.AzureBlobStorageClaimCheckBackend`";
 
-  public static final String WRAPPED_DESERIALIZER_DOCS = "Set to the normal Kafka Consumer de-serializer"
-      + " that would have been used before enabling Claim Check interceptors on the flow.";
+  public static final String WRAPPED_DESERIALIZER_DOCS = "Set to the normal Kafka Consumer "
+      + "de-serializer that would have been used before enabling Claim Check interceptors on "
+      + "the flow.";
 
   public static final String WRAPPED_SERIALIZER_DOCS = "Set to the normal Kafka Producer serializer"
       + " that would have been used before enabling Claim Check interceptors on the flow.";
@@ -41,8 +42,8 @@ public class BaseClaimCheckConfig extends AbstractConfig {
       + " enabled flow.";
 
   public static final String INTERCEPTOR_CLASSES_DOCS = "Set to"
-      + " `se.irori.kafka.claimcheck.ClaimCheckProducerInterceptor` for the Producer in a Claim Check"
-      + " enabled flow.";
+      + " `se.irori.kafka.claimcheck.ClaimCheckProducerInterceptor` for the Producer in a"
+      + " Claim Check enabled flow.";
 
   public static final String DESERIALIZER_DOCS = "Set to"
       + " `se.irori.kafka.claimcheck.ClaimCheckDeserializer` for the Consumer in a Claim Check"
