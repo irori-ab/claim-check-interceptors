@@ -18,6 +18,6 @@
     <Match>
         <!-- we know configure is called before serialize -->
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
-        <Class name="~se\.irori\.kafka\.claimcheck\.azure\.AzureBlobStorageClaimCheckBackendV8" />
+        <Class name="~se\.irori\.kafka\.claimcheck\.azurev8\.AzureBlobStorageClaimCheckBackendV8" />
     </Match>
 </FindBugsFilter>
