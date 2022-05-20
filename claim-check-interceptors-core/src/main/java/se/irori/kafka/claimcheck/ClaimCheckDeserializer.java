@@ -10,6 +10,17 @@ import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Deserializes Kafka messages that are potentially Claim Check messages.
+ *
+ * <p>If messages carry the `message-claim-check` header, the configured Claim Check backend
+ * is used to fetch the real payload from the underlying store.
+ *
+ * <p>The configured wrapped de-serializer is used to de-serialize the message bytes that either
+ * come from the claim check backend or directly as Kafka message value.
+ *
+ * @param <T> The Java type to de-serialize to.
+ */
 public class ClaimCheckDeserializer<T> implements Deserializer<T> {
 
   private static final Logger LOG = LoggerFactory.getLogger(ClaimCheckDeserializer.class);

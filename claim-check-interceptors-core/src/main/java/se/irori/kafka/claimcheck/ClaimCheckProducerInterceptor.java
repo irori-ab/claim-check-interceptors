@@ -22,8 +22,7 @@ import se.irori.kafka.claimcheck.BaseClaimCheckConfig.Keys;
  * Implementation of the ClaimCheck pattern producer side. Assumes you have also configured
  * the {@link ClaimCheckSerializer} to catch any propagated errors.
  *
- * <p>
- * If the message is above the configured limit, a claim check will be published
+ * <p>If the message is above the configured limit, a claim check will be published
  * in the configured backend, and a reference stored as a header of the message
  * published in Kafka.
  */
@@ -53,7 +52,7 @@ public class ClaimCheckProducerInterceptor<K, V>
       Keys.CLAIMCHECK_CHECKIN_UNCOMPRESSED_BATCH_SIZE_OVER_BYTES_CONFIG);
 
     this.valueSerializer = baseClaimCheckConfig
-            .getConfiguredInstance(Keys.CLAIMCHECK_WRAPPED_VALUE_SERIALIZER_CLASS, Serializer.class);
+        .getConfiguredInstance(Keys.CLAIMCHECK_WRAPPED_VALUE_SERIALIZER_CLASS, Serializer.class);
     this.valueSerializer.configure(baseClaimCheckConfig.originals(), false);
 
     this.keySerializer = baseClaimCheckConfig
@@ -91,7 +90,8 @@ public class ClaimCheckProducerInterceptor<K, V>
 
 
       if (isAboveClaimCheckLimit(producerRecord, keyBytes, valueBytes)) {
-        ClaimCheck claimCheck = claimCheckBackend.checkIn(new ProducerRecord<>(producerRecord.topic(),
+        ClaimCheck claimCheck = claimCheckBackend.checkIn(
+            new ProducerRecord<>(producerRecord.topic(),
             producerRecord.partition(),
             producerRecord.timestamp(),
             null,

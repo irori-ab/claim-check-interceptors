@@ -6,7 +6,7 @@
   <parent>
     <groupId>se.irori.kafka</groupId>
     <artifactId>claim-check-interceptors-parent</artifactId>
-    <version>0.7.1-SNAPSHOT</version>
+    <version>0.7.2-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
   <artifactId>claim-check-interceptors-azure</artifactId>
@@ -20,7 +20,7 @@
     <producer.azure.blob.storage.account.sastoken.from />
     <consumer.azure.blob.storage.account.endpoint />
     <consumer.azure.blob.storage.account.sastoken.from />
-    <azure-sdk.version>12.12.0</azure-sdk.version>
+    <azure-sdk.version>12.16.0</azure-sdk.version>
   </properties>
 
   <dependencies>
@@ -28,13 +28,13 @@
     <dependency>
       <groupId>se.irori.kafka</groupId>
       <artifactId>claim-check-interceptors-core</artifactId>
-      <version>0.7.1-SNAPSHOT</version>
+      <version>0.7.2-SNAPSHOT</version>
     </dependency>
 
     <dependency>
       <groupId>se.irori.kafka</groupId>
       <artifactId>claim-check-test-tools</artifactId>
-      <version>0.7.1-SNAPSHOT</version>
+      <version>0.7.2-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 
@@ -55,7 +55,6 @@
       <artifactId>testcontainers</artifactId>
       <scope>test</scope>
     </dependency>
-
 
     <dependency>
       <groupId>org.testcontainers</groupId>

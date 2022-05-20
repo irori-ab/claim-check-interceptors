@@ -28,24 +28,41 @@ public class AzureClaimCheckConfig extends AbstractConfig {
       Arrays.asList(AZURE_STORAGE_ACCOUNT_ENDPOINT_CONFIG,
           AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG);
 
+  public static final String SERVICE_ENDPOINT_DOCS =
+      "Storage account service endpoint. Either use this in combination with `"
+          + AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG + "` or instead configure `"
+          + AZURE_STORAGE_ACCOUNT_CONNECTION_STRING_CONFIG + "`";
+
+  public static final String CONNECTION_STRING_DOCS = "Configure a connection string to connect to"
+      + " the storage account. See [docs]"
+      + "(https://docs.microsoft.com/en-us/azure/storage/common/storage-configure-connection-string)";
+
+  public static final String SASTOKEN_FROM_DOCS = "Where to fetch the SAS token credential from."
+      + " Valid mechanisms are `path:`, `env:`, or `value:`. Use *path* for specifying a path to a"
+      + " file on disk. Use *env* for fetching from an enviroment variable. Or use *value* to"
+      + " specify the SAS token value explicitly.";
+
+  public static final String CREATE_CONTAINER_DOCS = "Create the container if it does not exist. "
+      + "*Note* this seems to require a SAS token with full account access. This does not work"
+      + " well with SAS tokens limited to a specific container (topic)";
+
   enum SasTokenFromMechanism {
     VALUE, ENV, FILE
   }
 
-  private SasTokenFromMechanism sasTokenFromMechanism;
-
-  private static ConfigDef buildConfigDef(ConfigDef base) {
+  static ConfigDef buildConfigDef(ConfigDef base) {
     base.define(AZURE_STORAGE_ACCOUNT_ENDPOINT_CONFIG, ConfigDef.Type.STRING, null,
-        ConfigDef.Importance.MEDIUM, "TODO docs");
+        ConfigDef.Importance.MEDIUM,
+        SERVICE_ENDPOINT_DOCS);
 
     base.define(AZURE_STORAGE_ACCOUNT_CONNECTION_STRING_CONFIG, ConfigDef.Type.STRING, null,
-        ConfigDef.Importance.MEDIUM, "TODO docs");
+        ConfigDef.Importance.MEDIUM, CONNECTION_STRING_DOCS);
 
     base.define(AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG, ConfigDef.Type.STRING, null,
-        ConfigDef.Importance.MEDIUM, "'path:...', 'env:..', 'value:...'");
+        ConfigDef.Importance.MEDIUM, SASTOKEN_FROM_DOCS);
 
     base.define(AZURE_CREATE_CONTAINER_IF_NOT_EXISTS, ConfigDef.Type.BOOLEAN, false,
-        ConfigDef.Importance.MEDIUM, "TODO docs");
+        ConfigDef.Importance.MEDIUM, CREATE_CONTAINER_DOCS);
 
     return base;
   }

@@ -9,7 +9,10 @@ import org.apache.kafka.common.header.Headers;
  * Utility methods for Claim Check related Kafka headers.
  */
 public class ClaimCheckUtils {
+
   /**
+   * Checks if the message is a claim check.
+   *
    * @return true if record headers indicate the message is a Claim Check.
    */
   public static boolean isClaimCheck(Headers headers) {

@@ -11,8 +11,8 @@ public interface ClaimCheckBackend extends Configurable  {
 
   /**
    * Check in the record in the underlying storage system.
-   * <p>
-   * This means uploading the payload, collecting some reference (claim check) which
+   *
+   * <p>This means uploading the payload, collecting some reference (claim check) which
    * can later be used to retrieved the payload.
    *
    * @param largeRecord the message record to check in with the claim check pattern

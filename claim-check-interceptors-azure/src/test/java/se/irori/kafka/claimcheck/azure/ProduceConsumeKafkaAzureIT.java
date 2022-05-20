@@ -50,9 +50,11 @@ public class ProduceConsumeKafkaAzureIT extends AbstractClaimCheckIT {
   public final AzuriteContainer azuriteContainer = new AzuriteContainer()
       .withExposedPorts(10000);
 
+  // https://docs.confluent.io/platform/current/installation/versions-interoperability.html
+  // 7.1.x => Kafka 3.1.0
   @ClassRule
   public static final KafkaContainer kafkaContainer =
-      new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:6.2.0")); // 2.8.0
+      new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.1.1"));
 
   @Before
   public void setUp() {
