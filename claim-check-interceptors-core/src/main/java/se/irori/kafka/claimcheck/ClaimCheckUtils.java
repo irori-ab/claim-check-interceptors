@@ -11,7 +11,7 @@ import org.apache.kafka.common.header.Headers;
 public class ClaimCheckUtils {
 
   /**
-   * Checks if the message is a claim checl.
+   * Checks if the message is a claim check.
    *
    * @return true if record headers indicate the message is a Claim Check.
    */
