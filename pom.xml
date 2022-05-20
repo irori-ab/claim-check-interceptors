@@ -322,7 +322,7 @@
               <autoVersionSubmodules>true</autoVersionSubmodules>
               <useReleaseProfile>false</useReleaseProfile>
               <releaseProfiles>release</releaseProfiles>
-              <tagNameFormat>${project.version}</tagNameFormat>
+              <tagNameFormat>v${project.version}</tagNameFormat>
               <goals>deploy</goals>
             </configuration>
           </plugin>
