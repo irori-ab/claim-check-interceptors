@@ -15,7 +15,7 @@ Add the dependency:
 <dependency>
   <groupId>se.irori.kafka</groupId>
   <artifactId>claim-check-interceptors-azure</artifactId>
-  <version>0.7.1-SNAPSHOT</version>
+  <version>1.0.0</version>
 </dependency>
 ```
 

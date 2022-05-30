@@ -3,7 +3,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [unreleased]
+### Added
+- N/A
+
+### Changed
+- N/A 
+
+## [1.0.0]
+### Added
+- N/A
+
+### Changed
+Functionally same as 0.7.1.
+
+- docs: updated readme with new version in example
+
+## [0.7.1]
 ### Added
 - ci: add spotbugs
 
@@ -12,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - docs: generate docs from ConfigDefs, add proper config doc strings
 - docs: add back simpler diagram, refer to detailed one in link
 - docs: add some missed javadocs
+- ci: change mvn release git tag format
   
 ## [0.7.0] - 2022-05-06
 ### Changed
@@ -47,8 +64,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - ci: mvn verify every commit
 - test: Testcontainers based integration tests with Azurite and Kafka
 
-[Unreleased]: https://github.com/irori-ab/claim-check-interceptors/compare/claim-check-interceptors-parent-0.7.0...HEAD
-[0.7.0]: https://github.com/irori-ab/claim-check-interceptors/compare/v0.6.0...claim-check-interceptors-parent-0.7.0
+[Unreleased]: https://github.com/irori-ab/claim-check-interceptors/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/irori-ab/claim-check-interceptors/compare/v0.7.1...v1.0.0
+[0.7.1]: https://github.com/irori-ab/claim-check-interceptors/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/irori-ab/claim-check-interceptors/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/irori-ab/claim-check-interceptors/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/irori-ab/claim-check-interceptors/releases/tag/v0.5.0
 
