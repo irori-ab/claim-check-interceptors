@@ -7,6 +7,7 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.BlobUrlParts;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -48,6 +49,24 @@ public class AzureBlobStorageClaimCheckBackend implements ClaimCheckBackend {
   }
 
   @Override
+  public ClaimCheck checkInStreaming(String topic, InputStream payload, long payloadSize) {
+    BlobContainerClient blobContainerClient =
+        topicContainerClients.computeIfAbsent(topic,
+            t -> blobServiceClient.getBlobContainerClient(t));
+
+    if (createContainerIfNotExists && !blobContainerClient.exists()) {
+      blobContainerClient.create();
+    }
+
+    String blobName = UUID.randomUUID().toString();
+    BlobClient blobClient = blobContainerClient.getBlobClient(blobName);
+
+    blobClient.upload(payload, payloadSize);
+    String blobUrl = blobClient.getBlobUrl();
+    return new ClaimCheck(blobUrl);
+  }
+
+  @Override
   public byte[] checkOut(ClaimCheck claimCheck) {
     String blobUrl = claimCheck.getReference();
 
@@ -67,6 +86,25 @@ public class AzureBlobStorageClaimCheckBackend implements ClaimCheckBackend {
     BinaryData binaryData = blobClient.downloadContent();
 
     return binaryData.toBytes();
+  }
+
+  @Override
+  public InputStream checkOutStreaming(ClaimCheck claimCheck) {
+    String blobUrl = claimCheck.getReference();
+
+    BlobUrlParts parts;
+    try {
+      parts = BlobUrlParts.parse(new URL(blobUrl));
+    } catch (MalformedURLException e) {
+      throw new KafkaStorageException("Bad Azure claim check url: " + blobUrl);
+    }
+
+    BlobContainerClient blobContainerClient =
+        topicContainerClients.computeIfAbsent(parts.getBlobContainerName(),
+            t -> blobServiceClient.getBlobContainerClient(t));
+
+    BlobClient blobClient = blobContainerClient.getBlobClient(parts.getBlobName());
+    return blobClient.openInputStream();
   }
 
   @Override

@@ -3,6 +3,8 @@ package se.irori.kafka.claimcheck;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.Configurable;
 
+import java.io.InputStream;
+
 /**
  * A Claim Check storage backend that can store large messages, issue references to them,
  * and using these references, later retrieve the messages.
@@ -20,6 +22,8 @@ public interface ClaimCheckBackend extends Configurable  {
    */
   ClaimCheck checkIn(ProducerRecord<byte[], byte[]> largeRecord);
 
+  ClaimCheck checkInStreaming(String topic, InputStream payload, long payloadSize);
+
   /**
    * Retrieve a previously stored record, using the Claim Check (reference).
    *
@@ -27,6 +31,8 @@ public interface ClaimCheckBackend extends Configurable  {
    * @return the message payload previously checked in
    */
   byte[] checkOut(ClaimCheck claimCheck);
+
+  InputStream checkOutStreaming(ClaimCheck claimCheck);
 
   /**
    * Close any resources opened to communicate with the backend.

@@ -6,6 +6,7 @@ import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -64,6 +65,11 @@ public class AzureBlobStorageClaimCheckBackendV8 implements ClaimCheckBackend {
     return new ClaimCheck(blockBlobReference.getUri().toString());
   }
 
+  @Override
+  public ClaimCheck checkInStreaming(String topic, InputStream payload, long payloadSize) {
+    throw new UnsupportedOperationException("Not implemented for Azure V8 backend");
+  }
+
   private CloudBlobContainer getCloudBlobContainer(ProducerRecord<byte[], byte[]> largeRecord) {
     CloudBlobContainer cloudBlobContainer =
         topicContainerClients.computeIfAbsent(largeRecord.topic(), topic -> {
@@ -96,6 +102,11 @@ public class AzureBlobStorageClaimCheckBackendV8 implements ClaimCheckBackend {
     }
 
     return byteArrayOutputStream.toByteArray();
+  }
+
+  @Override
+  public InputStream checkOutStreaming(ClaimCheck claimCheck) {
+    throw new UnsupportedOperationException("Not implemented for Azure V8 backend");
   }
 
   @Override

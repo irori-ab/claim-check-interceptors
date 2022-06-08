@@ -3,12 +3,15 @@ package se.irori.kafka.claimcheck;
 import static se.irori.kafka.claimcheck.ClaimCheckUtils.getClaimCheckRefFromHeader;
 import static se.irori.kafka.claimcheck.ClaimCheckUtils.isClaimCheck;
 
-import java.util.Map;
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Map;
 
 /**
  * Deserializes Kafka messages that are potentially Claim Check messages.
@@ -19,13 +22,11 @@ import org.slf4j.LoggerFactory;
  * <p>The configured wrapped de-serializer is used to de-serialize the message bytes that either
  * come from the claim check backend or directly as Kafka message value.
  *
- * @param <T> The Java type to de-serialize to.
  */
-public class ClaimCheckDeserializer<T> implements Deserializer<T> {
+public class ClaimCheckStreamingDeserializer implements Deserializer<InputStream> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ClaimCheckDeserializer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ClaimCheckStreamingDeserializer.class);
 
-  private Deserializer<T> valueDeserializer;
   private ClaimCheckBackend claimCheckBackend;
 
   /**
@@ -42,10 +43,6 @@ public class ClaimCheckDeserializer<T> implements Deserializer<T> {
       throw new ConfigException("Should not be used to wrap key serializer, only value");
     }
 
-    this.valueDeserializer = baseClaimCheckConfig.getConfiguredInstance(
-        BaseClaimCheckConfig.Keys.CLAIMCHECK_WRAPPED_VALUE_DESERIALIZER_CLASS, Deserializer.class);
-    this.valueDeserializer.configure(configs, false);
-
     this.claimCheckBackend = baseClaimCheckConfig.getConfiguredInstance(
         BaseClaimCheckConfig.Keys.CLAIMCHECK_BACKEND_CLASS_CONFIG, ClaimCheckBackend.class);
   }
@@ -59,7 +56,7 @@ public class ClaimCheckDeserializer<T> implements Deserializer<T> {
    * @return deserialized typed data; may be null
    */
   @Override
-  public T deserialize(String topic, byte[] data) {
+  public InputStream deserialize(String topic, byte[] data) {
     throw new IllegalArgumentException("Need to use Kafka Client library >2.1.0 that passes "
         + "headers to deserializer");
   }
@@ -74,26 +71,19 @@ public class ClaimCheckDeserializer<T> implements Deserializer<T> {
    * @return deserialized typed data; may be null
    */
   @Override
-  public T deserialize(String topic, Headers headers, byte[] data) {
+  public InputStream deserialize(String topic, Headers headers, byte[] data) {
 
     if (isClaimCheck(headers)) {
-
       ClaimCheck claimCheck = new ClaimCheck(getClaimCheckRefFromHeader(headers));
+
       LOG.trace("received claim check: topic={}, ref={}",
           topic, claimCheck.getReference());
-      T deserializedValue = valueDeserializer
-          .deserialize(topic, headers, claimCheckBackend.checkOut(claimCheck));
+      InputStream deserializedValue = claimCheckBackend.checkOutStreaming(claimCheck);
       LOG.trace("checked out claim check: topic={}, ref={}",
           topic, claimCheck.getReference());
       return deserializedValue;
     } else {
-      return valueDeserializer
-          .deserialize(topic, headers, data);
+      return new ByteArrayInputStream(data);
     }
-  }
-
-  @Override
-  public void close() {
-    valueDeserializer.close();
   }
 }
