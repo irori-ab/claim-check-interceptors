@@ -24,6 +24,7 @@ public class InputStreamSerializer implements Serializer<InputStream> {
         headers.lastHeader(HEADER_MESSAGE_CLAIM_CHECK_PAYLOAD_SIZE).value();
     ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
     buffer.put(longBytes);
+    buffer.flip();
     long payloadSize = buffer.getLong();
 
     byte[] data = new byte[(int) payloadSize];

@@ -80,6 +80,7 @@ public class ClaimCheckStreamingProducerInterceptor<K>
           producerRecord.headers().lastHeader(HEADER_MESSAGE_CLAIM_CHECK_PAYLOAD_SIZE).value();
       ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
       buffer.put(longBytes);
+      buffer.flip();
       long payloadSize = buffer.getLong();
 
       final byte[] keyBytes = keySerializer.serialize(
@@ -133,17 +134,6 @@ public class ClaimCheckStreamingProducerInterceptor<K>
               stackTraceWriter.toString().getBytes(StandardCharsets.UTF_8))
       );
     }
-  }
-
-  private boolean isAboveClaimCheckLimit(ProducerRecord<?, ?> originalRecord,
-                                        byte[] keyBytes, byte[] valueBytes) {
-    Headers headers = originalRecord.headers();
-    long timestamp = originalRecord.timestamp() == null ? 0 : originalRecord.timestamp();
-    int batchSizeInBytes = DefaultRecordBatch.sizeInBytes(Collections.singleton(
-        new SimpleRecord(timestamp, keyBytes, valueBytes,
-            headers.toArray())));
-
-    return batchSizeInBytes > checkinUncompressedSizeOverBytes;
   }
 
   private boolean isAboveClaimCheckLimit(ProducerRecord<?, ?> originalRecord,
