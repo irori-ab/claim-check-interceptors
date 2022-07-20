@@ -67,7 +67,38 @@ public class AzureBlobStorageClaimCheckBackendV8 implements ClaimCheckBackend {
 
   @Override
   public ClaimCheck checkInStreaming(String topic, InputStream payload, long payloadSize) {
-    throw new UnsupportedOperationException("Not implemented for Azure V8 backend");
+    CloudBlobContainer cloudBlobContainer =
+        topicContainerClients.computeIfAbsent(topic, t -> {
+          try {
+            return blobServiceClient.getContainerReference(t);
+          } catch (Exception e) {
+            throw new KafkaStorageException(e);
+          }
+        });
+
+    if (createContainerIfNotExists) {
+      try {
+        cloudBlobContainer.createIfNotExists();
+      } catch (StorageException e) {
+        throw new KafkaStorageException(e);
+      }
+    }
+
+    String blobName = UUID.randomUUID().toString();
+    final CloudBlockBlob blockBlobReference;
+    try {
+      blockBlobReference = cloudBlobContainer.getBlockBlobReference(blobName);
+    } catch (Exception e) {
+      throw new KafkaStorageException(e);
+    }
+
+    try {
+      blockBlobReference.upload(payload, payloadSize);
+    } catch (Exception e) {
+      throw new KafkaStorageException(e);
+    }
+
+    return new ClaimCheck(blockBlobReference.getUri().toString());
   }
 
   private CloudBlobContainer getCloudBlobContainer(ProducerRecord<byte[], byte[]> largeRecord) {
@@ -106,7 +137,20 @@ public class AzureBlobStorageClaimCheckBackendV8 implements ClaimCheckBackend {
 
   @Override
   public InputStream checkOutStreaming(ClaimCheck claimCheck) {
-    throw new UnsupportedOperationException("Not implemented for Azure V8 backend");
+    String blobUrl = claimCheck.getReference();
+
+    final CloudBlockBlob blob;
+    try {
+      blob = new CloudBlockBlob(new URI(blobUrl), blobServiceClient.getCredentials());
+    } catch (URISyntaxException | StorageException | RuntimeException e ) {
+      throw new KafkaStorageException("Bad Azure claim check url: " + blobUrl);
+    }
+
+    try {
+      return blob.openInputStream();
+    } catch (StorageException e) {
+      throw new KafkaStorageException(e);
+    }
   }
 
   @Override
