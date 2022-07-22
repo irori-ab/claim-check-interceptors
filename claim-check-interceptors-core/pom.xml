@@ -19,12 +19,6 @@
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>se.irori.kafka</groupId>
-      <artifactId>claim-check-test-tools</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
-      <scope>test</scope>
-    </dependency>
 
     <dependency>
       <groupId>org.apache.kafka</groupId>
@@ -47,6 +41,8 @@
       <artifactId>slf4j-simple</artifactId>
       <scope>test</scope>
     </dependency>
+
+
   </dependencies>
 
 </project>

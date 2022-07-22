@@ -49,6 +49,28 @@ config.put(BaseClaimCheckConfig.Keys.CLAIMCHECK_WRAPPED_VALUE_DESERIALIZER_CLASS
         StringDeserializer.class);
 ```
 
+## Streaming mode
+A streaming mode is implemented based on `java.io.InputStream`, that can help reduce memory usage, since the payload
+does not need to be fully in memory.
+
+Note: you will need to provide an additional header in the Producer (`message-claim-check-payload-size`) as a 
+serialized Long. A convenience method is provided to help set this header:
+`se.irori.kafka.claimcheck.ClaimCheckStreamingUtils.setPayloadSize(Headers headers, long payloadSize)`
+
+```
+# producer
+# Need to have KafkaProducer<T, InputStream>
+# Need to send header message-claim-check-payload-size as Long
+interceptor.classes=se.irori.kafka.claimcheck.ClaimCheckStreamingProducerInterceptor
+value.serializer.wrapped.serializer=se.irori.kafka.claimcheck.InputStreamSerializer
+
+# consumer
+# Need to have KafkaConsumer<T, InputStream>
+value.deserializer=se.irori.kafka.claimcheck.ClaimCheckStreamingDeserializer
+```
+
+See example usage in `claim-check-interceptors-azure/.../ProduceConsumeStreamingKafkaAzureIT.java`.
+
 ## Config reference
 
 `claimcheck.backend.class`
@@ -65,7 +87,7 @@ The the byte limit where Kafka record batches above this size are checked in usi
 * Importance: medium
 
 `interceptor.classes`
-Set to `se.irori.kafka.claimcheck.ClaimCheckProducerInterceptor` for the Producer in a Claim Check enabled flow.
+Set to `se.irori.kafka.claimcheck.ClaimCheckProducerInterceptor` for the Producer in a Claim Check enabled flow. If using streaming mode, instead use `ClaimCheckStreamingProducerInterceptor`.
 
 * Type: list
 * Default: null
@@ -79,7 +101,7 @@ Standard Kafka key.serializer option. Used  for the calculation of message size 
 * Importance: medium
 
 `value.deserializer`
-Set to `se.irori.kafka.claimcheck.ClaimCheckDeserializer` for the Consumer in a Claim Check enabled flow.
+Set to `se.irori.kafka.claimcheck.ClaimCheckDeserializer` for the Consumer in a Claim Check enabled flow. If using streaming mode, instead use `ClaimCheckStreamingDeserializer`.
 
 * Type: class
 * Default: null

@@ -47,7 +47,7 @@ public class StringClaimCheckProducerInterceptorTest {
 
   @Test
   public void onSendLargeString() {
-    // GIVEN the interceptor is configured with max limit 10 bytes
+    // GIVEN the interceptor is configured with max limit 200 bytes
 
     // WHEN sending a record with null key, and body > 100 bytes (with margin)
     String body = TestUtils.getRandomString(200);
@@ -55,17 +55,16 @@ public class StringClaimCheckProducerInterceptorTest {
             new ProducerRecord<>("dummyTopic", body);
     ProducerRecord<String, String> result = unit.onSend(producerRecord);
 
-    assertTrue(ClaimCheckUtils.isClaimCheck(producerRecord.headers()));
-
     // THEN result should be a claim check reference to the 0 counter value from the dummy impl
+    assertTrue(ClaimCheckUtils.isClaimCheck(producerRecord.headers()));
     assertEquals("1", new ClaimCheck(ClaimCheckUtils.getClaimCheckRefFromHeader(
-        producerRecord.headers())).getReference());
+        result.headers())).getReference());
     assertEquals(1, FakeClaimCheckBackend.getCount());
   }
 
   @Test
   public void onSendSmallString() {
-    // GIVEN the interceptor is configured with max limit 10 bytes
+    // GIVEN the interceptor is configured with max limit 200 bytes
 
     // WHEN sending a record with null key, and body < 10 bytes
     String body = TestUtils.getRandomString(10);
@@ -77,13 +76,13 @@ public class StringClaimCheckProducerInterceptorTest {
     // THEN result should be a claim check reference to the 0 counter value from the dummy impl
     assertEquals(body, result.value());
     assertEquals(0, FakeClaimCheckBackend.getCount());
-    assertFalse(ClaimCheckUtils.isClaimCheck(producerRecord.headers()));
-    assertFalse(ClaimCheckUtils.isClaimCheckError(producerRecord.headers()));
+    assertFalse(ClaimCheckUtils.isClaimCheck(result.headers()));
+    assertFalse(ClaimCheckUtils.isClaimCheckError(result.headers()));
   }
 
   @Test
   public void onSendNullString() {
-    // GIVEN the interceptor is configured with max limit 10 bytes
+    // GIVEN the interceptor is configured with max limit 200 bytes
 
     String nullStr = null;
     // WHEN sending a record with null key, and null body
@@ -96,13 +95,13 @@ public class StringClaimCheckProducerInterceptorTest {
     // THEN result should be a claim check reference to the 0 counter value from the dummy impl
     assertEquals(nullStr, result.value());
     assertEquals(0, FakeClaimCheckBackend.getCount());
-    assertFalse(ClaimCheckUtils.isClaimCheck(producerRecord.headers()));
-    assertFalse(ClaimCheckUtils.isClaimCheckError(producerRecord.headers()));
+    assertFalse(ClaimCheckUtils.isClaimCheck(result.headers()));
+    assertFalse(ClaimCheckUtils.isClaimCheckError(result.headers()));
   }
 
   @Test
   public void onSendBackendError() {
-    // GIVEN the interceptor is configured with max limit 10 bytes
+    // GIVEN the interceptor is configured with max limit 200 bytes
     // GIVEN the fake backend is set to throw errors
     FakeClaimCheckBackend.setErrorModeOn(true);
 
@@ -116,11 +115,11 @@ public class StringClaimCheckProducerInterceptorTest {
     // THEN result should be a normal message with claim check error header, we called backend
     assertEquals(body, result.value());
     assertEquals(1, FakeClaimCheckBackend.getCount());
-    assertFalse(ClaimCheckUtils.isClaimCheck(producerRecord.headers()));
-    assertTrue(ClaimCheckUtils.isClaimCheckError(producerRecord.headers()));
+    assertFalse(ClaimCheckUtils.isClaimCheck(result.headers()));
+    assertTrue(ClaimCheckUtils.isClaimCheckError(result.headers()));
 
     String stackTrace = ClaimCheckUtils.getClaimCheckErrorStackTraceFromHeader(
-        producerRecord.headers());
+        result.headers());
     assertTrue(stackTrace.contains("RuntimeException"));
     assertTrue(stackTrace.contains("FakeClaimCheckBackend"));
     assertTrue(stackTrace.contains("ClaimCheckProducerInterceptor"));

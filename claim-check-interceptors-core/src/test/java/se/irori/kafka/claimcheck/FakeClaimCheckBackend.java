@@ -1,5 +1,7 @@
 package se.irori.kafka.claimcheck;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -38,12 +40,30 @@ public class FakeClaimCheckBackend
   }
 
   @Override
+  public ClaimCheck checkInStreaming(String topic, InputStream payload, long payloadSize) {
+    counter += 1;
+    if (errorModeOn) {
+      throw new RuntimeException("Some fake backend exception");
+    }
+    return new ClaimCheck("" + counter);
+  }
+
+  @Override
   public byte[] checkOut(ClaimCheck claimCheck) {
     String counterString = (counter++)+"";
     if (errorModeOn) {
       throw new RuntimeException("Some fake backend exception");
     }
     return counterString.getBytes(StandardCharsets.UTF_8);
+  }
+
+  @Override
+  public InputStream checkOutStreaming(ClaimCheck claimCheck) {
+    String counterString = (counter++)+"";
+    if (errorModeOn) {
+      throw new RuntimeException("Some fake backend exception");
+    }
+    return new ByteArrayInputStream(counterString.getBytes(StandardCharsets.UTF_8));
   }
 
   @Override

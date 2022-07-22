@@ -1,8 +1,12 @@
 package se.irori.kafka.claimcheck;
 
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Random;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 /**
  * Common utility methods for tests.
@@ -27,5 +31,23 @@ public class TestUtils {
     byte[] bytes = new byte[length];
     RANDOM.nextBytes(bytes);
     return bytes;
+  }
+
+  /**
+   * Create a test streaming producer record.
+   *
+   * @param topic record topic
+   * @param key record key
+   * @param value record value
+   * @return a ProducerRecord with value as stream, with proper payload size header
+   */
+  public static ProducerRecord<String, InputStream> streamRecordFromString(
+      String topic, String key, String value) {
+    byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+    ByteArrayInputStream valueStream = new ByteArrayInputStream(bytes);
+    ProducerRecord<String, InputStream> inputRecord =
+        new ProducerRecord<>(topic, key, valueStream);
+    ClaimCheckStreamingUtils.setPayloadSize(inputRecord.headers(), bytes.length);
+    return inputRecord;
   }
 }
