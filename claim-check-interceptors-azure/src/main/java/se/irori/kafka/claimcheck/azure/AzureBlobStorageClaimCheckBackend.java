@@ -68,28 +68,14 @@ public class AzureBlobStorageClaimCheckBackend implements ClaimCheckBackend {
 
   @Override
   public byte[] checkOut(ClaimCheck claimCheck) {
-    String blobUrl = claimCheck.getReference();
-
-    BlobUrlParts parts;
-    try {
-      parts = BlobUrlParts.parse(new URL(blobUrl));
-    } catch (MalformedURLException e) {
-      throw new KafkaStorageException("Bad Azure claim check url: " + blobUrl);
-    }
-
-    BlobContainerClient blobContainerClient =
-        topicContainerClients.computeIfAbsent(parts.getBlobContainerName(),
-            t -> blobServiceClient.getBlobContainerClient(t));
-
-    BlobClient blobClient = blobContainerClient.getBlobClient(parts.getBlobName());
+    BlobClient blobClient = getBlobClientFromClaimCheck(claimCheck);
 
     BinaryData binaryData = blobClient.downloadContent();
 
     return binaryData.toBytes();
   }
 
-  @Override
-  public InputStream checkOutStreaming(ClaimCheck claimCheck) {
+  private BlobClient getBlobClientFromClaimCheck(ClaimCheck claimCheck) {
     String blobUrl = claimCheck.getReference();
 
     BlobUrlParts parts;
@@ -103,7 +89,12 @@ public class AzureBlobStorageClaimCheckBackend implements ClaimCheckBackend {
         topicContainerClients.computeIfAbsent(parts.getBlobContainerName(),
             t -> blobServiceClient.getBlobContainerClient(t));
 
-    BlobClient blobClient = blobContainerClient.getBlobClient(parts.getBlobName());
+    return blobContainerClient.getBlobClient(parts.getBlobName());
+  }
+
+  @Override
+  public InputStream checkOutStreaming(ClaimCheck claimCheck) {
+    BlobClient blobClient = getBlobClientFromClaimCheck(claimCheck);
     return blobClient.openInputStream();
   }
 

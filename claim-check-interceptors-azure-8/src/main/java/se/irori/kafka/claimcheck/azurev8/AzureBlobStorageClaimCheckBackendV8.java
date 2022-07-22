@@ -36,8 +36,22 @@ public class AzureBlobStorageClaimCheckBackendV8 implements ClaimCheckBackend {
 
   @Override
   public ClaimCheck checkIn(ProducerRecord<byte[], byte[]> largeRecord) {
+    final CloudBlockBlob blockBlobReference =
+        getMessageBlob(largeRecord.topic());
+
+
+    try {
+      blockBlobReference.uploadFromByteArray(largeRecord.value(), 0, largeRecord.value().length);
+    } catch (Exception e) {
+      throw new KafkaStorageException(e);
+    }
+
+    return new ClaimCheck(blockBlobReference.getUri().toString());
+  }
+
+  private CloudBlockBlob getMessageBlob(String topic) {
     CloudBlobContainer blobContainerClient =
-        getCloudBlobContainer(largeRecord);
+        getCloudBlobContainer(topic);
 
     if (createContainerIfNotExists) {
       try {
@@ -54,43 +68,12 @@ public class AzureBlobStorageClaimCheckBackendV8 implements ClaimCheckBackend {
     } catch (Exception e) {
       throw new KafkaStorageException(e);
     }
-
-
-    try {
-      blockBlobReference.uploadFromByteArray(largeRecord.value(), 0, largeRecord.value().length);
-    } catch (Exception e) {
-      throw new KafkaStorageException(e);
-    }
-
-    return new ClaimCheck(blockBlobReference.getUri().toString());
+    return blockBlobReference;
   }
 
   @Override
   public ClaimCheck checkInStreaming(String topic, InputStream payload, long payloadSize) {
-    CloudBlobContainer cloudBlobContainer =
-        topicContainerClients.computeIfAbsent(topic, t -> {
-          try {
-            return blobServiceClient.getContainerReference(t);
-          } catch (Exception e) {
-            throw new KafkaStorageException(e);
-          }
-        });
-
-    if (createContainerIfNotExists) {
-      try {
-        cloudBlobContainer.createIfNotExists();
-      } catch (StorageException e) {
-        throw new KafkaStorageException(e);
-      }
-    }
-
-    String blobName = UUID.randomUUID().toString();
-    final CloudBlockBlob blockBlobReference;
-    try {
-      blockBlobReference = cloudBlobContainer.getBlockBlobReference(blobName);
-    } catch (Exception e) {
-      throw new KafkaStorageException(e);
-    }
+    final CloudBlockBlob blockBlobReference = getMessageBlob(topic);
 
     try {
       blockBlobReference.upload(payload, payloadSize);
@@ -101,29 +84,20 @@ public class AzureBlobStorageClaimCheckBackendV8 implements ClaimCheckBackend {
     return new ClaimCheck(blockBlobReference.getUri().toString());
   }
 
-  private CloudBlobContainer getCloudBlobContainer(ProducerRecord<byte[], byte[]> largeRecord) {
-    CloudBlobContainer cloudBlobContainer =
-        topicContainerClients.computeIfAbsent(largeRecord.topic(), topic -> {
-          try {
-            return blobServiceClient.getContainerReference(largeRecord.topic());
-          } catch (Exception e) {
-            throw new KafkaStorageException(e);
-          }
-        });
+  private CloudBlobContainer getCloudBlobContainer(String topic) {
 
-    return cloudBlobContainer;
+    return topicContainerClients.computeIfAbsent(topic, t -> {
+      try {
+        return blobServiceClient.getContainerReference(t);
+      } catch (Exception e) {
+        throw new KafkaStorageException(e);
+      }
+    });
   }
 
   @Override
   public byte[] checkOut(ClaimCheck claimCheck) {
-    String blobUrl = claimCheck.getReference();
-
-    final CloudBlockBlob blob;
-    try {
-      blob = new CloudBlockBlob(new URI(blobUrl), blobServiceClient.getCredentials());
-    } catch (URISyntaxException | StorageException | RuntimeException e) {
-      throw new KafkaStorageException("Bad Azure claim check url: " + blobUrl);
-    }
+    final CloudBlockBlob blob = getBlobFromClaimCheck(claimCheck);
 
     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
     try {
@@ -135,8 +109,7 @@ public class AzureBlobStorageClaimCheckBackendV8 implements ClaimCheckBackend {
     return byteArrayOutputStream.toByteArray();
   }
 
-  @Override
-  public InputStream checkOutStreaming(ClaimCheck claimCheck) {
+  private CloudBlockBlob getBlobFromClaimCheck(ClaimCheck claimCheck) {
     String blobUrl = claimCheck.getReference();
 
     final CloudBlockBlob blob;
@@ -145,6 +118,12 @@ public class AzureBlobStorageClaimCheckBackendV8 implements ClaimCheckBackend {
     } catch (URISyntaxException | StorageException | RuntimeException e) {
       throw new KafkaStorageException("Bad Azure claim check url: " + blobUrl);
     }
+    return blob;
+  }
+
+  @Override
+  public InputStream checkOutStreaming(ClaimCheck claimCheck) {
+    final CloudBlockBlob blob = getBlobFromClaimCheck(claimCheck);
 
     try {
       return blob.openInputStream();
