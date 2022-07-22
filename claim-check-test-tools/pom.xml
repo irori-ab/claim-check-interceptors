@@ -18,7 +18,15 @@
   </properties>
 
   <dependencies>
-
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-clients</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>se.irori.kafka</groupId>
+      <artifactId>claim-check-interceptors-core</artifactId>
+      <version>1.0.1-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
 
