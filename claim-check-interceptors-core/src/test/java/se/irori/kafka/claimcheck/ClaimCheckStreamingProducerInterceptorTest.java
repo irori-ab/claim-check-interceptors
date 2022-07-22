@@ -2,8 +2,6 @@ package se.irori.kafka.claimcheck;
 
 import static org.junit.Assert.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -47,12 +45,10 @@ public class ClaimCheckStreamingProducerInterceptorTest {
 
     // WHEN sending a record with null key, and body > 100 bytes (with margin)
     String body = TestUtils.getRandomString(200);
-    byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
-
     ProducerRecord<String, InputStream> producerRecord =
-        new ProducerRecord<>("dummyTopic", new ByteArrayInputStream(bodyBytes));
-    ClaimCheckStreamingProducerInterceptor.setPayloadSize(producerRecord.headers(),
-        bodyBytes.length);
+        TestUtils.streamRecordFromString("dummyTopic", "myKey", body);
+
+    byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
 
     ProducerRecord<String, InputStream> result = unit.onSend(producerRecord);
 
@@ -71,19 +67,14 @@ public class ClaimCheckStreamingProducerInterceptorTest {
 
     // WHEN sending a record with null key, and body < 100 bytes
     String body = TestUtils.getRandomString(10);
-    byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
-
     ProducerRecord<String, InputStream> producerRecord =
-        new ProducerRecord<>("dummyTopic", new ByteArrayInputStream(bodyBytes));
-    ClaimCheckStreamingProducerInterceptor.setPayloadSize(producerRecord.headers(),
-        bodyBytes.length);
+        TestUtils.streamRecordFromString("dummyTopic", "myKey", body);
 
     ProducerRecord<String, InputStream> result = unit.onSend(producerRecord);
 
     // THEN result should be a claim check reference to the 0 counter value from the dummy impl
-    byte[] outputBytes = new byte[bodyBytes.length];
-    DataInputStream dis = new DataInputStream(result.value());
-    dis.readFully(outputBytes);
+    byte[] outputBytes = ClaimCheckStreamingUtils.streamToBytes(result.value(),
+        body.getBytes(StandardCharsets.UTF_8).length);
 
     assertEquals(body, new String(outputBytes, StandardCharsets.UTF_8));
     assertEquals(0, FakeClaimCheckBackend.getCount());
@@ -99,7 +90,7 @@ public class ClaimCheckStreamingProducerInterceptorTest {
     ProducerRecord<String, InputStream> producerRecord =
         new ProducerRecord<>("dummyTopic",
             null);
-    ClaimCheckStreamingProducerInterceptor.setPayloadSize(producerRecord.headers(),
+    ClaimCheckStreamingUtils.setPayloadSize(producerRecord.headers(),
         0);
 
     ProducerRecord<String, InputStream> result = unit.onSend(producerRecord);
@@ -119,19 +110,14 @@ public class ClaimCheckStreamingProducerInterceptorTest {
 
     // WHEN sending a record with null key, and body > 100 bytes (with margin)
     String body = TestUtils.getRandomString(200);
-    byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
-
     ProducerRecord<String, InputStream> producerRecord =
-        new ProducerRecord<>("dummyTopic", new ByteArrayInputStream(bodyBytes));
-    ClaimCheckStreamingProducerInterceptor.setPayloadSize(producerRecord.headers(),
-        bodyBytes.length);
+        TestUtils.streamRecordFromString("dummyTopic", "myKey", body);
 
     ProducerRecord<String, InputStream> result = unit.onSend(producerRecord);
 
     // THEN result should be a normal message with claim check error header, we called backend
-    byte[] outputBytes = new byte[bodyBytes.length];
-    DataInputStream dis = new DataInputStream(result.value());
-    dis.readFully(outputBytes);
+    byte[] outputBytes = ClaimCheckStreamingUtils.streamToBytes(result.value(),
+        body.getBytes(StandardCharsets.UTF_8).length);
 
     assertEquals(body, new String(outputBytes, StandardCharsets.UTF_8));
     assertEquals(1, FakeClaimCheckBackend.getCount());
@@ -151,8 +137,8 @@ public class ClaimCheckStreamingProducerInterceptorTest {
   public void testPayloadSizeHeaderSerialization() {
     RecordHeaders headers = new RecordHeaders();
     long inputSize = 42;
-    ClaimCheckStreamingProducerInterceptor.setPayloadSize(headers, inputSize);
-    long outputSize = ClaimCheckStreamingProducerInterceptor.getPayloadSize(headers);
+    ClaimCheckStreamingUtils.setPayloadSize(headers, inputSize);
+    long outputSize = ClaimCheckStreamingUtils.getPayloadSize(headers);
 
     assertEquals(inputSize, outputSize);
   }

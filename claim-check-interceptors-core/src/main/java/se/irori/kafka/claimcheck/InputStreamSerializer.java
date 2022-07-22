@@ -19,7 +19,7 @@ public class InputStreamSerializer implements Serializer<InputStream> {
 
   @Override
   public byte[] serialize(String topic, Headers headers, InputStream dataStream) {
-    long payloadSize = ClaimCheckStreamingProducerInterceptor.getPayloadSize(headers);
+    long payloadSize = ClaimCheckStreamingUtils.getPayloadSize(headers);
 
     byte[] data = new byte[(int) payloadSize];
     DataInputStream dis = new DataInputStream(dataStream);

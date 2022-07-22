@@ -11,12 +11,9 @@ import org.apache.kafka.clients.producer.ProducerInterceptor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.config.ConfigException;
-import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.record.DefaultRecordBatch;
 import org.apache.kafka.common.record.SimpleRecord;
-import org.apache.kafka.common.serialization.LongDeserializer;
-import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,9 +30,6 @@ import se.irori.kafka.claimcheck.BaseClaimCheckConfig.Keys;
  */
 public class ClaimCheckStreamingProducerInterceptor<K>
     implements ProducerInterceptor<K, InputStream> {
-
-  private static LongSerializer payloadSizeSerializer = new LongSerializer();
-  private static LongDeserializer payloadSizeDeserializer = new LongDeserializer();
 
   public static final Logger LOG =
       LoggerFactory.getLogger(ClaimCheckStreamingProducerInterceptor.class);
@@ -81,7 +75,7 @@ public class ClaimCheckStreamingProducerInterceptor<K>
   @Override
   public ProducerRecord<K, InputStream> onSend(ProducerRecord<K, InputStream> producerRecord) {
     try {
-      long payloadSize = getPayloadSize(producerRecord.headers());
+      long payloadSize = ClaimCheckStreamingUtils.getPayloadSize(producerRecord.headers());
 
       final byte[] keyBytes = keySerializer.serialize(
           producerRecord.topic(),
@@ -159,30 +153,4 @@ public class ClaimCheckStreamingProducerInterceptor<K>
   }
 
 
-  /**
-   * Get the payload size header from a set of message headers.
-   *
-   * @param headers the header set to process
-   * @return the payload size, if header was found
-   * @throws IllegalArgumentException if no header entry was found
-   */
-  public static long getPayloadSize(Headers headers) {
-    Header payloadSizeHeader = headers.lastHeader(HEADER_MESSAGE_CLAIM_CHECK_PAYLOAD_SIZE);
-    if (payloadSizeHeader == null) {
-      throw new IllegalArgumentException("You must supply the '"
-          + HEADER_MESSAGE_CLAIM_CHECK_PAYLOAD_SIZE + "' header in streaming mode.");
-    }
-    return payloadSizeDeserializer.deserialize("dummy", payloadSizeHeader.value());
-  }
-
-  /**
-   * Set the payload size header on a set of headers.
-   *
-   * @param headers where to set the header
-   * @param payloadSize value to set
-   */
-  public static void setPayloadSize(Headers headers, long payloadSize) {
-    byte[] payloadSizeBytes = payloadSizeSerializer.serialize("dummy", payloadSize);
-    headers.add(HEADER_MESSAGE_CLAIM_CHECK_PAYLOAD_SIZE, payloadSizeBytes);
-  }
 }

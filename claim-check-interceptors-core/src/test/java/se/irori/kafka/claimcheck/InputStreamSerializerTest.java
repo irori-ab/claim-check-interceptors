@@ -6,7 +6,6 @@ import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import org.apache.kafka.common.errors.SerializationException;
-import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.header.internals.RecordHeaders;
 import org.junit.Test;
 
@@ -24,7 +23,7 @@ public class InputStreamSerializerTest {
 
     // WHEN serializing them with the proper payload size header
     RecordHeaders headers = new RecordHeaders();
-    ClaimCheckStreamingProducerInterceptor.setPayloadSize(headers, inputBytes.length);
+    ClaimCheckStreamingUtils.setPayloadSize(headers, inputBytes.length);
     byte[] outputBytes = unit.serialize("my-topic", headers, inputStream);
 
     // THEN the output bytes should be the same as the input
