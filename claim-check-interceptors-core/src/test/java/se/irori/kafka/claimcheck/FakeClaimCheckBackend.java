@@ -1,5 +1,6 @@
 package se.irori.kafka.claimcheck;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -40,7 +41,11 @@ public class FakeClaimCheckBackend
 
   @Override
   public ClaimCheck checkInStreaming(String topic, InputStream payload, long payloadSize) {
-    throw new UnsupportedOperationException("Not implemented");
+    counter += 1;
+    if (errorModeOn) {
+      throw new RuntimeException("Some fake backend exception");
+    }
+    return new ClaimCheck("" + counter);
   }
 
   @Override
@@ -54,7 +59,11 @@ public class FakeClaimCheckBackend
 
   @Override
   public InputStream checkOutStreaming(ClaimCheck claimCheck) {
-    throw new UnsupportedOperationException("Not implemented");
+    String counterString = (counter++)+"";
+    if (errorModeOn) {
+      throw new RuntimeException("Some fake backend exception");
+    }
+    return new ByteArrayInputStream(counterString.getBytes(StandardCharsets.UTF_8));
   }
 
   @Override

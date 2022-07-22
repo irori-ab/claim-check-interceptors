@@ -121,7 +121,7 @@ public class AzureBlobStorageClaimCheckBackendV8 implements ClaimCheckBackend {
     final CloudBlockBlob blob;
     try {
       blob = new CloudBlockBlob(new URI(blobUrl), blobServiceClient.getCredentials());
-    } catch (URISyntaxException | StorageException | RuntimeException e ) {
+    } catch (URISyntaxException | StorageException | RuntimeException e) {
       throw new KafkaStorageException("Bad Azure claim check url: " + blobUrl);
     }
 
@@ -142,7 +142,7 @@ public class AzureBlobStorageClaimCheckBackendV8 implements ClaimCheckBackend {
     final CloudBlockBlob blob;
     try {
       blob = new CloudBlockBlob(new URI(blobUrl), blobServiceClient.getCredentials());
-    } catch (URISyntaxException | StorageException | RuntimeException e ) {
+    } catch (URISyntaxException | StorageException | RuntimeException e) {
       throw new KafkaStorageException("Bad Azure claim check url: " + blobUrl);
     }
 

@@ -1,9 +1,8 @@
 package se.irori.kafka.claimcheck;
 
+import java.io.InputStream;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.Configurable;
-
-import java.io.InputStream;
 
 /**
  * A Claim Check storage backend that can store large messages, issue references to them,

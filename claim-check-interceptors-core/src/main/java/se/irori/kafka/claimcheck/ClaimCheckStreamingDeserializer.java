@@ -3,15 +3,14 @@ package se.irori.kafka.claimcheck;
 import static se.irori.kafka.claimcheck.ClaimCheckUtils.getClaimCheckRefFromHeader;
 import static se.irori.kafka.claimcheck.ClaimCheckUtils.isClaimCheck;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Map;
 import org.apache.kafka.common.config.ConfigException;
 import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Map;
 
 /**
  * Deserializes Kafka messages that are potentially Claim Check messages.
