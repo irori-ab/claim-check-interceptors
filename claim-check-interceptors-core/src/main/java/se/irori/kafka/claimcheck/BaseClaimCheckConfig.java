@@ -43,11 +43,12 @@ public class BaseClaimCheckConfig extends AbstractConfig {
 
   public static final String INTERCEPTOR_CLASSES_DOCS = "Set to"
       + " `se.irori.kafka.claimcheck.ClaimCheckProducerInterceptor` for the Producer in a"
-      + " Claim Check enabled flow.";
+      + " Claim Check enabled flow. If using streaming mode, "
+      +  "instead use `ClaimCheckStreamingProducerInterceptor`.";
 
   public static final String DESERIALIZER_DOCS = "Set to"
       + " `se.irori.kafka.claimcheck.ClaimCheckDeserializer` for the Consumer in a Claim Check"
-      + " enabled flow.";
+      + " enabled flow. If using streaming mode, instead use `ClaimCheckStreamingDeserializer`.";
 
   public static final String KEY_SERIALIZER_DOCS = "Standard Kafka key.serializer option. Used "
       + " for the calculation of message size to determine if it should be checked in.";
