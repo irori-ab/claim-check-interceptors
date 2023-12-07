@@ -6,10 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [unreleased]
 ### Added
 - Azure 12 backend: added `azure.blob.storage.account.identity.from` config option to use Azure identity 
-  credentials `DefaultAzureCredential` and `ManagedIdentityCredential` instead of SasToken.
+  credentials `DefaultAzureCredential` and `ManagedIdentityCredential` instead of SasToken. 
 
 ### Changed
-- N/A 
+- Bump to latest Azure BOM versions
+- Bump to Kafka clients 3.5.2, and 3.5 Kafka testcontainer images
+- Fix some spotbugs issues
 
 ## [1.0.0]
 ### Added

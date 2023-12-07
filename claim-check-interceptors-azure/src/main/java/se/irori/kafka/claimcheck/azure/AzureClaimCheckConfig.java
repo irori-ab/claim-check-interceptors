@@ -161,10 +161,6 @@ public class AzureClaimCheckConfig extends AbstractConfig {
     }
   }
 
-  private AzureNamedKeyCredential getCredential(String identityFrom) {
-    return null;
-  }
-
   /**
    * Construct, parse and validate a map of configurations.
    *

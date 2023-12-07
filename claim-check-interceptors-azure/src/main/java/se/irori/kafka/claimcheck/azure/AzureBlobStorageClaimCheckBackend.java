@@ -79,8 +79,7 @@ public class AzureBlobStorageClaimCheckBackend implements ClaimCheckBackend {
 
     String sasTokenFrom =
         config.getString(AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG);
-    String identityFrom =
-        config.getString(AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_IDENTITY_FROM_CONFIG);
+
     final BlobServiceClientBuilder blobServiceClientBuilder = new BlobServiceClientBuilder();
     if (connectionString != null) {
       blobServiceClientBuilder
