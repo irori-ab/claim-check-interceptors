@@ -8,7 +8,17 @@
     <Match>
         <!-- we know configure is called before serialize -->
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
-        <Class name="~se\.irori\.kafka\.claimcheck\.ClaimCheckSerializer" />
+        <Class name="se.irori.kafka.claimcheck.ClaimCheckSerializer" />
+    </Match>
+    <Match>
+        <!-- we know configure is called before deserialize -->
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
+        <Class name="se.irori.kafka.claimcheck.ClaimCheckDeserializer" />
+    </Match>
+    <Match>
+        <!-- we know configure is called before onSend -->
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
+        <Class name="se.irori.kafka.claimcheck.ClaimCheckProducerInterceptor" />
     </Match>
     <Match>
         <!-- we know configure is called before serialize -->

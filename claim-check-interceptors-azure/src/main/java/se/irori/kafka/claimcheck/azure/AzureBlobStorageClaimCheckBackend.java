@@ -1,5 +1,6 @@
 package se.irori.kafka.claimcheck.azure;
 
+import com.azure.core.credential.AzureNamedKeyCredential;
 import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
@@ -75,13 +76,23 @@ public class AzureBlobStorageClaimCheckBackend implements ClaimCheckBackend {
 
     String connectionString =
         config.getString(AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_CONNECTION_STRING_CONFIG);
+
+    String sasTokenFrom =
+        config.getString(AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG);
+
     final BlobServiceClientBuilder blobServiceClientBuilder = new BlobServiceClientBuilder();
     if (connectionString != null) {
       blobServiceClientBuilder
           .connectionString(connectionString);
-    } else {
+    } else if (sasTokenFrom != null) {
       blobServiceClientBuilder
           .sasToken(config.getSasToken())
+          .endpoint(config.getString(
+              AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_ENDPOINT_CONFIG));
+    } else {
+      // assume identity
+      blobServiceClientBuilder
+          .credential(config.getIdentityCredential())
           .endpoint(config.getString(
               AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_ENDPOINT_CONFIG));
     }
@@ -92,5 +103,6 @@ public class AzureBlobStorageClaimCheckBackend implements ClaimCheckBackend {
     createContainerIfNotExists = config.getBoolean(
         AzureClaimCheckConfig.Keys.AZURE_CREATE_CONTAINER_IF_NOT_EXISTS);
   }
+
 
 }

@@ -80,6 +80,25 @@ public class AzureClaimCheckConfigTest {
   }
 
   @Test
+  public void testEndpointWithIdentityDefault() {
+    HashMap<String,String> config = new HashMap<>();
+    config.put(Keys.AZURE_STORAGE_ACCOUNT_ENDPOINT_CONFIG, "https://someEndpoint");
+    config.put(Keys.AZURE_STORAGE_ACCOUNT_IDENTITY_FROM_CONFIG, "default");
+
+    unit = AzureClaimCheckConfig.validatedConfig(config);
+  }
+
+  @Test
+  public void testEndpointWithIdentityOkManagedValue() {
+    HashMap<String,String> config = new HashMap<>();
+    config.put(Keys.AZURE_STORAGE_ACCOUNT_ENDPOINT_CONFIG, "https://someEndpoint");
+    config.put(Keys.AZURE_STORAGE_ACCOUNT_IDENTITY_FROM_CONFIG,
+        "managed_id_env:my_client_id_env_var");
+
+    unit = AzureClaimCheckConfig.validatedConfig(config);
+  }
+
+  @Test
   public void generateDocs() {
     ConfigDef configDef = AzureClaimCheckConfig.buildConfigDef(new ConfigDef());
     // RST / markdown hack

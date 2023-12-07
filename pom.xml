@@ -80,8 +80,8 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
 
-    <lib.kafka.version>3.1.0</lib.kafka.version>
-    <lib.testcontainers.version>1.17.1</lib.testcontainers.version>
+    <lib.kafka.version>3.5.1</lib.kafka.version>
+    <lib.testcontainers.version>1.19.3</lib.testcontainers.version>
     <lib.slf4j.version>1.7.36</lib.slf4j.version>
     <lib.junit.version>4.13.2</lib.junit.version>
   </properties>
@@ -192,12 +192,12 @@
         <plugin>
           <groupId>com.github.spotbugs</groupId>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <version>4.5.3.0</version><dependencies>
+          <version>4.8.2.0</version><dependencies>
           <!-- overwrite dependency on spotbugs if you want to specify the version of˓→spotbugs -->
           <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs</artifactId>
-            <version>4.5.3</version>
+            <version>4.8.2</version>
           </dependency></dependencies>
           <configuration>
             <effort>Max</effort>
