@@ -45,6 +45,13 @@ Where to fetch the SAS token credential from. Valid mechanisms are `path:`, `env
 * Default: null
 * Importance: medium
 
+`azure.blob.storage.account.identity.from`
+Where to fetch the Azure identity from. Valid mechanisms are `default` (DefaultAzureCredential),  `managed_id_env:` (ManagedIdentityCredential),  or `managed_id_value:` (ManagedIdentityCredential).  For `managed_id_*` you supply the client id, either explicity as a value, or with the name of an environment variable where to find it.  See <https://learn.microsoft.com/en-us/java/api/overview/azure/identity-readme?view=azure-java-stable#credential-classes>
+
+* Type: string
+* Default: null
+* Importance: medium
+
 ## Run integration tests
 
 ### Azurite

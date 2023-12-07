@@ -5,7 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
 ### Added
-- N/A
+- Azure 12 backend: added `azure.blob.storage.account.identity.from` config option to use Azure identity 
+  credentials `DefaultAzureCredential` and `ManagedIdentityCredential` instead of SasToken.
 
 ### Changed
 - N/A 
