@@ -7,6 +7,7 @@ import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.BlobUrlParts;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
@@ -48,7 +49,33 @@ public class AzureBlobStorageClaimCheckBackend implements ClaimCheckBackend {
   }
 
   @Override
+  public ClaimCheck checkInStreaming(String topic, InputStream payload, long payloadSize) {
+    BlobContainerClient blobContainerClient =
+        topicContainerClients.computeIfAbsent(topic,
+            t -> blobServiceClient.getBlobContainerClient(t));
+
+    if (createContainerIfNotExists && !blobContainerClient.exists()) {
+      blobContainerClient.create();
+    }
+
+    String blobName = UUID.randomUUID().toString();
+    BlobClient blobClient = blobContainerClient.getBlobClient(blobName);
+
+    blobClient.upload(payload, payloadSize);
+    String blobUrl = blobClient.getBlobUrl();
+    return new ClaimCheck(blobUrl);
+  }
+
+  @Override
   public byte[] checkOut(ClaimCheck claimCheck) {
+    BlobClient blobClient = getBlobClientFromClaimCheck(claimCheck);
+
+    BinaryData binaryData = blobClient.downloadContent();
+
+    return binaryData.toBytes();
+  }
+
+  private BlobClient getBlobClientFromClaimCheck(ClaimCheck claimCheck) {
     String blobUrl = claimCheck.getReference();
 
     BlobUrlParts parts;
@@ -62,11 +89,13 @@ public class AzureBlobStorageClaimCheckBackend implements ClaimCheckBackend {
         topicContainerClients.computeIfAbsent(parts.getBlobContainerName(),
             t -> blobServiceClient.getBlobContainerClient(t));
 
-    BlobClient blobClient = blobContainerClient.getBlobClient(parts.getBlobName());
+    return blobContainerClient.getBlobClient(parts.getBlobName());
+  }
 
-    BinaryData binaryData = blobClient.downloadContent();
-
-    return binaryData.toBytes();
+  @Override
+  public InputStream checkOutStreaming(ClaimCheck claimCheck) {
+    BlobClient blobClient = getBlobClientFromClaimCheck(claimCheck);
+    return blobClient.openInputStream();
   }
 
   @Override
