@@ -51,10 +51,10 @@ public class ProduceConsumeKafkaAzureIT extends AbstractClaimCheckIT {
       .withExposedPorts(10000);
 
   // https://docs.confluent.io/platform/current/installation/versions-interoperability.html
-  // 7.1.x => Kafka 3.1.0
+  // 7.6.x => Kafka 3.6.0
   @ClassRule
   public static final KafkaContainer kafkaContainer =
-      new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.1.1"));
+      new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.6.1"));
 
   @Before
   public void setUp() {

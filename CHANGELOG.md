@@ -4,12 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
+
+- N/A
+
+## [1.1.0]
+
 ### Added
 - feat: Streaming mode based on InputStream using `ClaimCheckStreamingProducerInterceptor` and 
   `ClaimCheckStreamingDeserializer`.
 
 ### Changed
-- N/A 
+- Bumped dependencies
+  - Kafka clients 3.7.0
+  - Azure SDK
+  - Testcontainers
+- Build with and for Java 17
+
+## Removed
+
+- Removed Azure Storage SDK v8 backend implementation, since underlying libraries seem to not be
+  maintained (last release 2021).
 
 ## [1.0.0]
 ### Added
