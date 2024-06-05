@@ -20,7 +20,7 @@
     <producer.azure.blob.storage.account.sastoken.from />
     <consumer.azure.blob.storage.account.endpoint />
     <consumer.azure.blob.storage.account.sastoken.from />
-    <azure-sdk.version>12.16.0</azure-sdk.version>
+    <azure-sdk.version>12.18.0</azure-sdk.version>
   </properties>
 
   <dependencies>
