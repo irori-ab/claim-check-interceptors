@@ -80,7 +80,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
 
-    <lib.kafka.version>3.1.0</lib.kafka.version>
+    <lib.kafka.version>3.7.1</lib.kafka.version>
     <lib.testcontainers.version>1.17.1</lib.testcontainers.version>
     <lib.slf4j.version>1.7.36</lib.slf4j.version>
     <lib.junit.version>4.13.2</lib.junit.version>
