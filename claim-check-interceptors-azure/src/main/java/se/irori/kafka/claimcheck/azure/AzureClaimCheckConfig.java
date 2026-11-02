@@ -6,7 +6,6 @@ import static se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys.AZURE_S
 import static se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_IDENTITY_FROM_CONFIG;
 import static se.irori.kafka.claimcheck.azure.AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG;
 
-import com.azure.core.credential.AzureNamedKeyCredential;
 import com.azure.core.credential.TokenCredential;
 import com.azure.identity.DefaultAzureCredential;
 import com.azure.identity.DefaultAzureCredentialBuilder;
@@ -159,10 +158,6 @@ public class AzureClaimCheckConfig extends AbstractConfig {
         throw new ConfigException("Invalid Identity specification: "
             + getIdentityFromMechanism() + " " + getIdentityFromSpecifier());
     }
-  }
-
-  private AzureNamedKeyCredential getCredential(String identityFrom) {
-    return null;
   }
 
   /**

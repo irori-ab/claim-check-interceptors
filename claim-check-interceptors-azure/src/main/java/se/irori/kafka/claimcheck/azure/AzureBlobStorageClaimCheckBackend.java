@@ -1,6 +1,5 @@
 package se.irori.kafka.claimcheck.azure;
 
-import com.azure.core.credential.AzureNamedKeyCredential;
 import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
@@ -108,8 +107,6 @@ public class AzureBlobStorageClaimCheckBackend implements ClaimCheckBackend {
 
     String sasTokenFrom =
         config.getString(AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG);
-    String identityFrom =
-        config.getString(AzureClaimCheckConfig.Keys.AZURE_STORAGE_ACCOUNT_IDENTITY_FROM_CONFIG);
     final BlobServiceClientBuilder blobServiceClientBuilder = new BlobServiceClientBuilder();
     if (connectionString != null) {
       blobServiceClientBuilder
