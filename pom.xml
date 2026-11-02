@@ -5,7 +5,7 @@
 
   <groupId>se.irori.kafka</groupId>
   <artifactId>claim-check-interceptors-parent</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.1.0-SNAPSHOT</version>
 
   <packaging>pom</packaging>
 
@@ -24,11 +24,6 @@
   <modules>
     <module>claim-check-interceptors-core</module>
     <module>claim-check-interceptors-azure</module>
-    <module>claim-check-interceptors-azure-8</module>
-    <!-- Exclude for now, does not seem to be a recommended API
-      https://github.com/Azure/azure-storage-java/blob/master/V12%20Upgrade%20Story.md#from-v10-to-v12
-    -->
-    <!-- <module>claim-check-interceptors-azure-10</module> -->
     <module>claim-check-test-tools</module>
 
   </modules>
@@ -77,11 +72,10 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.release>17</maven.compiler.release>
 
-    <lib.kafka.version>3.1.0</lib.kafka.version>
-    <lib.testcontainers.version>1.17.1</lib.testcontainers.version>
+    <lib.kafka.version>3.7.0</lib.kafka.version>
+    <lib.testcontainers.version>1.19.8</lib.testcontainers.version>
     <lib.slf4j.version>1.7.36</lib.slf4j.version>
     <lib.junit.version>4.13.2</lib.junit.version>
   </properties>

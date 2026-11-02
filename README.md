@@ -7,15 +7,15 @@ Library implementing the Claim Check pattern for use with Kafka and Azure Blob S
 [Detailed component diagram](/docs/claim-check-blob-detailed.png)
 
 ## Usage
-Example usage for the `claim-check-interceptors-azure` (Azure SDK v12) backend. See also the 
-[Note about Azure SDK versions](claim-check-interceptors-azure).
+Example usage (`claim-check-interceptors-azure`): 
+[Note about Azure SDK compatibility](claim-check-interceptors-azure).
 
 Add the dependency:
 ```
 <dependency>
   <groupId>se.irori.kafka</groupId>
   <artifactId>claim-check-interceptors-azure</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
@@ -130,7 +130,6 @@ Set to the normal Kafka Producer serializer that would have been used before ena
 
 See additional config reference per backend:
 * [Azure v12 backend](claim-check-interceptors-azure/README.md)
-* [Azure v8 backend](claim-check-interceptors-azure-8/README.md)
 
 ## Building 
 
@@ -151,9 +150,6 @@ for running these tests locally.
 
 ### Azure Blob Storage v12
 See [docs](./claim-check-interceptors-azure/README.md).
-
-### Azure Blob Storage v8
-See [docs](./claim-check-interceptors-azure-8/README.md).
 
 ## Run integration tests
 
