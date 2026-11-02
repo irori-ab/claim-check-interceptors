@@ -205,8 +205,8 @@
           </configuration>
           <executions>
             <execution>
-              <id>validate</id>
-              <phase>validate</phase>
+              <id>spotbugs-check</id>
+              <phase>verify</phase>
               <goals>
                 <goal>check</goal>
               </goals>
