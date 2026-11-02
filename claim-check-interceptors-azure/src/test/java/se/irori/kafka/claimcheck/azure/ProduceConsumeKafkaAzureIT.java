@@ -54,7 +54,7 @@ public class ProduceConsumeKafkaAzureIT extends AbstractClaimCheckIT {
   // 7.6.x => Kafka 3.6.0
   @ClassRule
   public static final KafkaContainer kafkaContainer =
-      new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.6.1"));
+      new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.9.0"));
 
   @Before
   public void setUp() {

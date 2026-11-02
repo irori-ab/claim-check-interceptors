@@ -20,4 +20,9 @@
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
         <Class name="~se\.irori\.kafka\.claimcheck\.azurev8\.AzureBlobStorageClaimCheckBackendV8" />
     </Match>
+    <Match>
+        <!-- we know configure is called before serialize/deserialize/onSend/close -->
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
+        <Class name="~se\.irori\.kafka\.claimcheck\.ClaimCheck(Streaming)?(Deserializer|ProducerInterceptor)" />
+    </Match>
 </FindBugsFilter>
