@@ -233,7 +233,7 @@ public class AzureClaimCheckConfig extends AbstractConfig {
           getIdentityFromMechanism();
         } catch (IllegalArgumentException e) {
           throw new ConfigException("Invalid identity mechanism: "
-              + getString(AZURE_STORAGE_ACCOUNT_SASTOKEN_FROM_CONFIG));
+              + getString(AZURE_STORAGE_ACCOUNT_IDENTITY_FROM_CONFIG));
         }
         break;
       default:

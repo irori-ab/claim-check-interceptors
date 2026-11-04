@@ -99,6 +99,17 @@ public class AzureClaimCheckConfigTest {
   }
 
   @Test
+  public void testIdentityMechanismErrorNamesTheValue() {
+    HashMap<String,String> config = new HashMap<>();
+    config.put(Keys.AZURE_STORAGE_ACCOUNT_ENDPOINT_CONFIG, "https://someEndpoint");
+    config.put(Keys.AZURE_STORAGE_ACCOUNT_IDENTITY_FROM_CONFIG, "bogus");
+
+    ConfigException e = assertThrows(ConfigException.class,
+        () -> AzureClaimCheckConfig.validatedConfig(config));
+    assertTrue(e.getMessage(), e.getMessage().contains("bogus"));
+  }
+
+  @Test
   public void generateDocs() {
     ConfigDef configDef = AzureClaimCheckConfig.buildConfigDef(new ConfigDef());
     // RST / markdown hack
