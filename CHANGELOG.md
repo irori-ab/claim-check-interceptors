@@ -13,6 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - Kafka clients 3.9.2
   - Azure SDK (now managed through `azure-sdk-bom` 1.3.9)
   - Testcontainers 1.21.4, slf4j 2.0.x, Maven plugins
+- Publishing to Maven Central goes through the Central Portal (`central-publishing-maven-plugin`); OSSRH is
+  shut down.
+- SpotBugs runs after compilation (it was bound to `validate`, before any classes existed, and analysed
+  nothing).
 
 ## [1.1.0]
 
