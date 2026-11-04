@@ -48,7 +48,7 @@ public class AbstractClaimCheckIT {
       LOG.info("defaulting to Azurite client config (injecting for prefix: {})", withPrefix);
       String token =
           "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==";
-      String host = "" + azuriteContainer.getContainerIpAddress();
+      String host = "" + azuriteContainer.getHost();
       String account = "devstoreaccount1";
       // http://<local-machine-address>:<port>/<account-name>/<resource-path>
       String endpoint = String.format("http://%s:%d/%s/",

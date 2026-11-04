@@ -4,8 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
+### Added
+- Azure 12 backend: added `azure.blob.storage.account.identity.from` config option to use Azure identity
+  credentials `DefaultAzureCredential` and `ManagedIdentityCredential` instead of SasToken.
 
-- N/A
+### Changed
+- Bumped dependencies
+  - Kafka clients 3.9.2
+  - Azure SDK (now managed through `azure-sdk-bom` 1.3.9)
+  - Testcontainers 1.21.4, slf4j 2.0.x, Maven plugins
 
 ## [1.1.0]
 
