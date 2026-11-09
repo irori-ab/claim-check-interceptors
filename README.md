@@ -1,5 +1,5 @@
 # Claim Check interceptors
-Library implementing the Claim Check pattern for use with Kafka and Azure Blob Storage
+Library implementing the Claim Check pattern for use with Kafka and Azure Blob Storage or AWS S3
 
 ## Overview design
 ![Claim check interceptor design diagram](/docs/claim-check-blob.png)
@@ -130,6 +130,7 @@ Set to the normal Kafka Producer serializer that would have been used before ena
 
 See additional config reference per backend:
 * [Azure v12 backend](claim-check-interceptors-azure/README.md)
+* [AWS S3 backend](claim-check-interceptors-s3/README.md)
 
 ## Building 
 
@@ -150,6 +151,9 @@ for running these tests locally.
 
 ### Azure Blob Storage v12
 See [docs](./claim-check-interceptors-azure/README.md).
+
+### AWS S3
+See [docs](./claim-check-interceptors-s3/README.md). Also works with S3 compatible stores.
 
 ## Run integration tests
 
