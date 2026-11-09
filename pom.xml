@@ -76,7 +76,7 @@
     <maven.compiler.release>17</maven.compiler.release>
 
     <lib.kafka.version>3.7.0</lib.kafka.version>
-    <lib.testcontainers.version>1.19.8</lib.testcontainers.version>
+    <lib.testcontainers.version>1.21.4</lib.testcontainers.version>
     <lib.slf4j.version>1.7.36</lib.slf4j.version>
     <lib.junit.version>4.13.2</lib.junit.version>
   </properties>
