@@ -105,6 +105,12 @@ public class S3ClaimCheckBackendTest {
     }
   }
 
+  @Test(expected = KafkaStorageException.class)
+  public void rejectsPayloadOverSinglePutLimit() {
+    backend.checkInStreaming("my-topic", new ByteArrayInputStream(new byte[0]),
+        S3ClaimCheckBackend.MAX_SINGLE_PUT_BYTES + 1);
+  }
+
   @Test
   public void parseReference() {
     GetObjectRequest request = S3ClaimCheckBackend.getRequest(

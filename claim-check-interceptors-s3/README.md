@@ -37,7 +37,7 @@ supported:
   length from the `message-claim-check-payload-size` header, without buffering the payload in memory.
   The SDK can only rewind the first 128 KiB of a non markable stream, so a retry after more than that
   has been read fails the send (the error is propagated by `ClaimCheckSerializer`). Payloads above
-  5 GiB (the single `PutObject` limit) are rejected; multipart upload is not implemented yet.
+  5 GiB (the single `PutObject` limit) are not supported, and fail before anything is uploaded.
 - **Consumer:** the returned `InputStream` only issues the `GetObject` request on first read. This
   avoids holding one open HTTP connection per record for all records returned by a `poll()`. Once
   read, the stream holds a connection from the client's pool (default max 50) until closed, so

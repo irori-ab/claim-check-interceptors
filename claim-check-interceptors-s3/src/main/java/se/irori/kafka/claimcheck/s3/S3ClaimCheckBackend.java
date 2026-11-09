@@ -35,7 +35,8 @@ public class S3ClaimCheckBackend implements ClaimCheckBackend {
   static final String S3_SCHEME_PREFIX = "s3://";
 
   /**
-   * Max size of a single PutObject upload. Larger payloads would need multipart upload.
+   * Max size of a single PutObject upload. Payloads are assumed to stay below this, so
+   * multipart upload is deliberately not supported.
    */
   static final long MAX_SINGLE_PUT_BYTES = 5L * 1024 * 1024 * 1024;
 
@@ -56,7 +57,7 @@ public class S3ClaimCheckBackend implements ClaimCheckBackend {
   public ClaimCheck checkInStreaming(String topic, InputStream payload, long payloadSize) {
     if (payloadSize > MAX_SINGLE_PUT_BYTES) {
       throw new KafkaStorageException("Payload size " + payloadSize + " exceeds the S3 single "
-          + "PUT limit of " + MAX_SINGLE_PUT_BYTES + " bytes (multipart not supported yet)");
+          + "PUT limit of " + MAX_SINGLE_PUT_BYTES + " bytes, which is the max supported size");
     }
     String key = newKey(topic);
     // streams the payload with a known content length, without buffering it fully in memory
