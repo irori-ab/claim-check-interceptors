@@ -5,7 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [unreleased]
 
-- N/A
+### Added
+- feat: AWS S3 backend `S3ClaimCheckBackend` in new module `claim-check-interceptors-s3`,
+  including streaming mode.
 
 ## [1.1.0]
 

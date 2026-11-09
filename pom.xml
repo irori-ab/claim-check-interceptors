@@ -24,6 +24,7 @@
   <modules>
     <module>claim-check-interceptors-core</module>
     <module>claim-check-interceptors-azure</module>
+    <module>claim-check-interceptors-s3</module>
     <module>claim-check-test-tools</module>
 
   </modules>
